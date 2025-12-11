@@ -143,7 +143,7 @@
   <div class="sidebar">
     <div class="header">
       <h1>CSG Metal Pro</h1>
-      <p>Конструктор сторис v3.2 (New Year)</p>
+      <p>Конструктор сторис v3.3 (Fixes)</p>
     </div>
 
     <!-- 1. PHOTOS -->
@@ -370,23 +370,35 @@
     ctx.fillStyle = '#111'; ctx.fillRect(0,0,W,H);
     const pad=40, gap=20, areaH=H*0.55;
     const imgs = state.images;
-    
-    if(imgs.length === 1) drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, areaH);
-    else if(imgs.length === 2) {
+    const count = Math.min(imgs.length, 4);
+
+    if(count === 1) drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, areaH);
+    else if(count === 2) {
       const h = (areaH-gap)/2;
       drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, h);
       drawImageCover(ctx, imgs[1], pad, pad+h+gap, W-pad*2, h);
-    } else if(imgs.length >= 3) {
+    } else if(count === 3) {
       const mainH = areaH * 0.6;
       drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, mainH);
       const subW = (W-pad*2-gap)/2;
       drawImageCover(ctx, imgs[1], pad, pad+mainH+gap, subW, areaH-mainH-gap);
-      if(imgs[2]) drawImageCover(ctx, imgs[2], pad+subW+gap, pad+mainH+gap, subW, areaH-mainH-gap);
+      drawImageCover(ctx, imgs[2], pad+subW+gap, pad+mainH+gap, subW, areaH-mainH-gap);
+    } else if(count === 4) {
+      // 2x2 Grid Fix
+      const w = (W - pad*2 - gap)/2;
+      const h = (areaH - gap)/2;
+      drawImageCover(ctx, imgs[0], pad, pad, w, h);
+      drawImageCover(ctx, imgs[1], pad+w+gap, pad, w, h);
+      drawImageCover(ctx, imgs[2], pad, pad+h+gap, w, h);
+      drawImageCover(ctx, imgs[3], pad+w+gap, pad+h+gap, w, h);
     }
+    
     drawLogoBookmark(ctx, W/2);
-    const centerBlockY = areaH + (H-areaH)/2;
-    ctx.textAlign = 'center'; ctx.textBaseline='middle';
-    let ty = centerBlockY - 100;
+    
+    // Fix: Position text below images, not centered in void
+    ctx.textAlign = 'center'; ctx.textBaseline='top';
+    let ty = areaH + 60;
+    
     if(state.title) {
       ctx.font = `800 75px ${FONT_MANROPE}`; ctx.fillStyle='#fff';
       wrapText(ctx, state.title, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=85; });
@@ -398,7 +410,7 @@
     if(state.cta) {
       ty+=60; ctx.font=`700 42px ${FONT_INTER}`; ctx.fillStyle=state.accent;
       ctx.fillText(state.cta, W/2, ty);
-      ctx.fillRect(W/2 - 100, ty+30, 200, 4);
+      ctx.fillRect(W/2 - 100, ty+50, 200, 4);
     }
   }
 
@@ -590,15 +602,16 @@
     const startY = bigH + gap;
     const stripH = H * 0.18;
     
-    const count = imgs.length - 1; // Remaining images
-    if (count > 0) {
-        const w = (W - gap * (count + 1)) / count;
-        for(let i=0; i<count; i++) {
-            drawImageCover(ctx, imgs[i+1], gap + i*(w+gap), startY, w, stripH, 12);
-        }
+    const count = Math.max(imgs.length - 1, 1); 
+    const w = (W - gap * (count + 1)) / count;
+    
+    // If only 1 image total, draw placeholders or nothing
+    if(imgs.length === 1) {
+       ctx.fillStyle='#18181b'; ctx.fillRect(gap, startY, W-gap*2, 10);
     } else {
-        // Fallback decoration if only 1 image
-        ctx.fillStyle='#18181b'; ctx.fillRect(gap, startY, W-gap*2, 10);
+       for(let i=0; i<count; i++) {
+          if(imgs[i+1]) drawImageCover(ctx, imgs[i+1], gap + i*(w+gap), startY, w, stripH, 12);
+       }
     }
     
     drawLogoBookmark(ctx, W/2);
@@ -624,21 +637,17 @@
     }
   }
 
-  // --- V10: CHRISTMAS (New) ---
+  // --- V10: CHRISTMAS (Fixed Text & Button) ---
   function renderV10(ctx) {
-    // 1. Red Festive BG
     const g = ctx.createLinearGradient(0,0,0,H);
     g.addColorStop(0, '#7f1d1d'); g.addColorStop(1, '#450a0a');
     ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
     
-    // 2. Main Photo
     if(state.images[0]) drawImageCover(ctx, state.images[0], 40, 200, W-80, H*0.5, 20);
     
-    // 3. Frosty Border
     ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 4;
     ctx.strokeRect(30, 30, W-60, H-60);
     
-    // 4. Procedural Snow (No assets needed)
     ctx.fillStyle = '#fff';
     for(let i=0; i<150; i++) {
         const x = Math.random()*W; const y = Math.random()*H;
@@ -649,12 +658,11 @@
 
     drawLogoBookmark(ctx, W/2);
 
-    // 5. Text
     let ty = H*0.5 + 260;
     ctx.textAlign='center'; ctx.textBaseline='top';
     
     ctx.font = `italic 700 60px ${FONT_SERIF}`; ctx.fillStyle = '#fca5a5';
-    ctx.fillText("Happy New Year", W/2, ty - 80);
+    ctx.fillText("С Новым Годом!", W/2, ty - 80);
 
     if(state.title) {
         ctx.fillStyle='#fff'; ctx.font=`700 90px ${FONT_SERIF}`;
@@ -665,10 +673,10 @@
         wrapText(ctx, state.desc, W-140).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
     }
     
-    // 6. Gift Button
     if(state.cta) {
         ty+=50; ctx.fillStyle = '#fff'; 
-        const btnW = ctx.measureText(state.cta).width + 100;
+        // Fix: Increased button width padding
+        const btnW = ctx.measureText(state.cta).width + 160;
         ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 100, 10); ctx.fill();
         ctx.strokeStyle=state.accent; ctx.lineWidth=4; ctx.strokeRect(W/2 - btnW/2 + 5, ty+5, btnW-10, 90);
         
@@ -677,46 +685,52 @@
     }
   }
 
-  // --- V11: 4-STRIPS (New Catalog) ---
+  // --- V11: 4-STRIPS (Fixed Layout & Text Overlap) ---
   function renderV11(ctx) {
-     ctx.fillStyle = '#111'; ctx.fillRect(0,0,W,H);
+     ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
      
-     // 4 Vertical Strips
+     // Images take 70% height to leave room for text
      const colW = W / 4;
+     const imgH = H * 0.70;
+     
      state.images.slice(0,4).forEach((img, i) => {
-        drawImageCover(ctx, img, i*colW, 0, colW, H*0.75);
-        // Dimming
-        ctx.fillStyle = `rgba(0,0,0,${0.3 + i*0.1})`; ctx.fillRect(i*colW, 0, colW, H*0.75);
+        drawImageCover(ctx, img, i*colW, 0, colW, imgH);
+        // Gradient overlay at bottom of images
+        const g = ctx.createLinearGradient(0, imgH - 200, 0, imgH);
+        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, '#000');
+        ctx.fillStyle = g; ctx.fillRect(i*colW, imgH - 200, colW, 200);
      });
      
      drawLogoBookmark(ctx, W/2);
      
-     // Bottom Info Area
-     ctx.fillStyle = '#111'; ctx.fillRect(0, H*0.75, W, H*0.25);
-     ctx.fillStyle = state.accent; ctx.fillRect(0, H*0.75, W, 10);
+     // Text Area (Solid Black)
+     const textY = imgH;
+     ctx.fillStyle = '#000'; ctx.fillRect(0, textY, W, H - textY);
+     ctx.fillStyle = state.accent; ctx.fillRect(0, textY, W, 6);
      
-     let ty = H*0.75 + 80;
-     ctx.textAlign = 'left'; ctx.textBaseline='top';
+     let ty = textY + 80;
+     ctx.textAlign = 'center'; ctx.textBaseline='top';
      
      if(state.title) {
         ctx.fillStyle='#fff'; ctx.font=`800 80px ${FONT_MANROPE}`;
-        ctx.fillText(state.title, 50, ty);
+        ctx.fillText(state.title, W/2, ty);
      }
      
      ty += 100;
      if(state.desc) {
         ctx.fillStyle='#888'; ctx.font=`500 36px ${FONT_INTER}`;
-        wrapText(ctx, state.desc, W/2).slice(0,3).forEach(l => { ctx.fillText(l, 50, ty); ty+=45; });
+        wrapText(ctx, state.desc, W-100).slice(0,2).forEach(l => { ctx.fillText(l, W/2, ty); ty+=45; });
      }
      
      if(state.cta) {
-        const bx = W - 450; const by = H*0.82;
-        ctx.fillStyle = '#222'; ctx.beginPath(); ctx.roundRect(bx, by, 400, 100, 16); ctx.fill();
+        ty += 60;
+        const btnW = ctx.measureText(state.cta).width + 120;
+        ctx.fillStyle = '#222'; ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 100, 16); ctx.fill();
         ctx.strokeStyle = '#333'; ctx.lineWidth=2; ctx.stroke();
         
         ctx.fillStyle = state.accent; ctx.font=`700 36px ${FONT_INTER}`; 
-        ctx.textAlign='center'; ctx.textBaseline='middle';
-        ctx.fillText(state.cta, bx + 200, by+50);
+        ctx.textBaseline='middle';
+        ctx.fillText(state.cta, W/2, ty+50);
      }
   }
 
@@ -781,5 +795,3 @@
 </script>
 </body>
 </html>
-```
-165.4s
