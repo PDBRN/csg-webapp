@@ -1,14 +1,13 @@
- <!-- trigger -->
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>CSG Metal — Professional Edition</title>
-
-   <!-- Telegram WebApp SDK -->
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+  <title>CSG Metal Pro</title>
   
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
@@ -24,362 +23,345 @@
       --font-ui: 'Inter', sans-serif;
     }
 
-    * { box-sizing: border-box; outline: none; }
+    * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
     
     body {
       margin: 0;
       background-color: var(--bg);
-      background-image: radial-gradient(circle at top center, #1e1e24 0%, var(--bg) 60%);
       color: var(--text);
       font-family: var(--font-ui);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 40px 20px;
+      padding: 0;
     }
 
     .app-wrapper {
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 40px;
-      max-width: 1800px;
+      display: flex;
+      flex-direction: column;
       width: 100%;
+      padding-bottom: 100px; /* Место под кнопку */
     }
 
-    /* Sidebar */
+    /* Sidebar / Settings */
     .sidebar {
       background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 24px;
-      height: fit-content;
-      position: sticky;
-      top: 40px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      z-index: 10;
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .header { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-    .header h1 { margin: 0; font-size: 20px; font-weight: 700; color: #fff; }
-    .header p { margin: 4px 0 0 0; color: var(--text-dim); font-size: 13px; }
+    .header { margin-bottom: 20px; }
+    .header h1 { margin: 0; font-size: 18px; font-weight: 700; color: #fff; }
+    .header p { margin: 4px 0 0 0; color: var(--text-dim); font-size: 12px; }
 
     .control-group { margin-bottom: 20px; }
-    .control-group label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 500; color: var(--text-dim); }
+    .control-group label { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
 
     input[type="text"], textarea, select {
       width: 100%;
       background: #0f0f11;
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 12px 14px;
+      padding: 12px;
       border-radius: 12px;
       font-family: inherit;
       font-size: 14px;
+      margin-bottom: 8px;
     }
-    textarea { resize: vertical; min-height: 110px; line-height: 1.5; }
+    textarea { resize: none; height: 80px; }
 
+    /* File Drop */
     .file-drop {
-      border: 2px dashed var(--border);
+      border: 1px dashed var(--border);
       border-radius: 12px;
-      padding: 20px;
+      padding: 16px;
       text-align: center;
-      cursor: pointer;
-      transition: 0.2s;
       background: rgba(255,255,255,0.02);
+      cursor: pointer;
     }
-    .file-drop:hover { border-color: var(--text-dim); background: rgba(255,255,255,0.04); }
-    .file-drop span { font-size: 13px; color: var(--text-dim); pointer-events: none; }
+    .file-drop span { font-size: 13px; color: var(--primary); font-weight: 500; }
     input[type="file"] { display: none; }
 
-    .row { display: flex; gap: 12px; }
-    .row > * { flex: 1; }
-    input[type="color"] { padding: 0; border: none; height: 42px; background: transparent; cursor: pointer; }
+    /* Logo Presets */
+    .logo-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .logo-btn {
+      background: #27272a;
+      border: 1px solid transparent;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      flex: 1 1 auto;
+      text-align: center;
+      transition: 0.2s;
+    }
+    .logo-btn.active {
+      background: var(--primary);
+      color: #000;
+      font-weight: 700;
+    }
+    .logo-btn:active { transform: scale(0.95); }
 
+    /* Color & Background Row */
+    .row { display: flex; gap: 12px; align-items: center; }
+    
+    /* FIX: Round Color Picker */
+    .color-wrapper {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+    }
+    input[type="color"] {
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      padding: 0; margin: 0;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Generate Button (Floating) */
     .btn-generate {
-      width: 100%;
-      background: linear-gradient(135deg, var(--primary), #d97706);
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: calc(100% - 40px);
+      background: var(--primary);
       color: #000;
       border: none;
       padding: 16px;
-      border-radius: 99px;
-      font-weight: 700;
-      font-size: 15px;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 16px;
       cursor: pointer;
-      box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.3);
-      transition: transform 0.1s, filter 0.2s;
-      margin-top: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 100;
+      text-transform: uppercase;
     }
-    .btn-generate:hover { filter: brightness(1.1); }
-    .btn-generate:active { transform: scale(0.98); }
+    .btn-generate:active { transform: scale(0.96); }
 
-    /* Grid */
+    /* Previews */
     .preview-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-      align-items: start;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
     }
 
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: transform 0.3s ease;
+      border-radius: 16px;
+      padding: 10px;
     }
-    .card:hover { border-color: var(--text-dim); transform: translateY(-3px); }
-
-    .card-header { display: flex; justify-content: space-between; align-items: center; padding: 0 4px; }
-    .card-title { font-size: 13px; font-weight: 600; color: var(--text); }
-    .badge {
-      font-size: 9px; text-transform: uppercase; font-weight: 700;
-      background: #27272a; padding: 4px 6px; border-radius: 4px; color: var(--text-dim);
+    
+    .card-header { 
+      display: flex; justify-content: space-between; 
+      margin-bottom: 10px; padding: 0 4px; 
     }
+    .card-title { font-size: 12px; font-weight: 600; color: #fff; }
+    .badge { font-size: 10px; background: #27272a; padding: 2px 6px; border-radius: 4px; color: #888; }
 
     canvas {
       width: 100%;
       height: auto;
-      aspect-ratio: 9/16;
-      background: #000;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-radius: 8px;
       display: block;
+      background: #000;
     }
 
-    .btn-dl {
-      background: #27272a;
+    .btn-share {
+      margin-top: 10px;
+      background: #333;
       color: #fff;
       border: none;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
       width: 100%;
-      transition: 0.2s;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
     }
-    .btn-dl:hover { background: #3f3f46; }
-
-    @media (max-width: 1600px) { .preview-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 1200px) { .preview-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 1024px) { .app-wrapper { grid-template-columns: 1fr; } .sidebar { position: static; } }
-    @media (max-width: 600px) { .preview-grid { grid-template-columns: 1fr; } body { padding: 10px; } }
   </style>
 </head>
 <body>
 
 <div class="app-wrapper">
-  <!-- SIDEBAR -->
+  <!-- SETTINGS -->
   <div class="sidebar">
     <div class="header">
       <h1>CSG Metal Pro</h1>
-      <p>8 профессиональных шаблонов</p>
+      <p>Генератор контента v2.1</p>
     </div>
 
+    <!-- 1. PHOTOS -->
     <div class="control-group">
-      <label>1. Фотографии (1-4 шт)</label>
+      <label>1. Фотографии</label>
       <div class="file-drop" onclick="document.getElementById('imgInput').click()">
-        <span id="fileLabel">Нажмите для загрузки фото...</span>
+        <span id="fileLabel">📸 Выбрать фото (до 4 шт)</span>
         <input type="file" id="imgInput" multiple accept="image/*" onchange="updateFileLabel(this)">
       </div>
     </div>
 
+    <!-- 2. LOGO PRESETS -->
     <div class="control-group">
-      <label>2. Логотип (PNG)</label>
-      <div class="file-drop" style="padding: 12px;" onclick="document.getElementById('logoInput').click()">
-        <span id="logoLabel">Загрузить логотип...</span>
-        <input type="file" id="logoInput" accept="image/*" onchange="document.getElementById('logoLabel').innerText = this.files[0].name">
+      <label>2. Логотип</label>
+      <div class="logo-grid" id="logoContainer">
+        <button class="logo-btn active" onclick="selectLogo(this, 'none')">Без лого</button>
+        <!-- Ссылки заменишь на свои -->
+        <button class="logo-btn" onclick="selectLogo(this, 'csg')">ЦСГ</button>
+        <button class="logo-btn" onclick="selectLogo(this, 'mstore')">M-Store</button>
+        <button class="logo-btn" onclick="selectLogo(this, 'pss')">ПСС</button>
+        <button class="logo-btn" onclick="selectLogo(this, 'cm')">ЦМ</button>
+        <button class="logo-btn" onclick="selectLogo(this, 'polymers')">Полимеры</button>
+        <button class="logo-btn" onclick="selectLogo(this, 'horeca')">Хорека</button>
+        <button class="logo-btn" onclick="selectLogo(this, 'custom')">Свой...</button>
       </div>
+      <!-- Скрытый инпут для своего лого -->
+      <input type="file" id="customLogoInput" accept="image/*" style="display:none" onchange="handleCustomLogo(this)">
     </div>
 
+    <!-- 3. SPLIT TEXT -->
     <div class="control-group">
-      <label>3. Текст (Заголовок / Описание / Кнопка)</label>
-      <textarea id="caption" placeholder="Заголовок...&#10;Описание...&#10;CTA: Текст кнопки">Арматура А500С
-В наличии все диаметры. Резка в размер. Доставка в день заказа.
-
-CTA: Рассчитать стоимость 🔥</textarea>
+      <label>3. Текстовый блок</label>
+      <input type="text" id="txtTitle" placeholder="Заголовок (напр. Арматура А500С)" value="Арматура А500С">
+      <textarea id="txtDesc" placeholder="Описание (напр. В наличии все диаметры...)">В наличии все диаметры. Резка в размер. Доставка в день заказа.</textarea>
+      <input type="text" id="txtBtn" placeholder="Текст кнопки (напр. Рассчитать 🔥)" value="Рассчитать стоимость 🔥">
     </div>
 
+    <!-- 4. STYLE -->
     <div class="row control-group">
       <div>
         <label>Акцент</label>
-        <input type="color" id="accentColor" value="#f59e0b">
+        <div class="color-wrapper">
+          <input type="color" id="accentColor" value="#f59e0b">
+        </div>
       </div>
-      <div>
+      <div style="flex-grow: 1;">
         <label>Фон</label>
         <select id="bgStyle">
-          <option value="dark">Тёмный (Склад)</option>
           <option value="blur">Blur (Подложка)</option>
+          <option value="dark">Тёмный (Склад)</option>
           <option value="clean">Светлый (Бетон)</option>
         </select>
       </div>
     </div>
-
-    <button class="btn-generate" id="renderBtn">Генерировать</button>
   </div>
 
-  <!-- PREVIEW GRID -->
-  <div class="preview-grid">
-    <!-- V1 -->
-    <div class="card">
-      <div class="card-header"><span class="card-title">V1. Classic Hero</span><span class="badge">Universal</span></div>
-      <canvas id="c1" width="1080" height="1920"></canvas>
-      <button class="btn-dl" onclick="download('c1')">Скачать PNG</button>
-    </div>
-    <!-- V2 -->
-    <div class="card">
-      <div class="card-header"><span class="card-title">V2. Smart Grid</span><span class="badge">Collage</span></div>
-      <canvas id="c2" width="1080" height="1920"></canvas>
-      <button class="btn-dl" onclick="download('c2')">Скачать PNG</button>
-    </div>
-    <!-- V3 -->
-    <div class="card">
-      <div class="card-header"><span class="card-title">V3. Big Bold</span><span class="badge">Promo</span></div>
-      <canvas id="c3" width="1080" height="1920"></canvas>
-      <button class="btn-dl" onclick="download('c3')">Скачать PNG</button>
-    </div>
-    <!-- V4 -->
-    <div class="card">
-      <div class="card-header"><span class="card-title">V4. Product Card</span><span class="badge">Clean</span></div>
-      <canvas id="c4" width="1080" height="1920"></canvas>
-      <button class="btn-dl" onclick="download('c4')">Скачать PNG</button>
-    </div>
-    <!-- V5 -->
-    <div class="card">
-      <div class="card-header"><span class="card-title">V5. Industrial</span><span class="badge">Strict</span></div>
-      <canvas id="c5" width="1080" height="1920"></canvas>
-      <button class="btn-dl" onclick="download('c5')">Скачать PNG</button>
-    </div>
-    <!-- V6 -->
-    <div class="card">
-      <div class="card-header"><span class="card-title">V6. Hot Offer</span><span class="badge">Sale</span></div>
-      <canvas id="c6" width="1080" height="1920"></canvas>
-      <button class="btn-dl" onclick="download('c6')">Скачать PNG</button>
-    </div>
-    <!-- V7 (NEW) -->
-    <div class="card">
-      <div class="card-header"><span class="card-title">V7. Geometric Cut</span><span class="badge">New</span></div>
-      <canvas id="c7" width="1080" height="1920"></canvas>
-      <button class="btn-dl" onclick="download('c7')">Скачать PNG</button>
-    </div>
-    <!-- V8 (NEW) -->
-    <div class="card">
-      <div class="card-header"><span class="card-title">V8. Solid Frame</span><span class="badge">New</span></div>
-      <canvas id="c8" width="1080" height="1920"></canvas>
-      <button class="btn-dl" onclick="download('c8')">Скачать PNG</button>
-    </div>
+  <!-- PREVIEWS -->
+  <div class="preview-grid" id="gridArea" style="display:none;">
+    <!-- Cards will be rendered here -->
+    <div class="card"><div class="card-header"><span class="card-title">V1. Classic</span></div><canvas id="c1" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c1')">Сохранить / Отправить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V2. Grid</span></div><canvas id="c2" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c2')">Сохранить / Отправить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V3. Big Bold</span></div><canvas id="c3" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c3')">Сохранить / Отправить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V4. Card</span></div><canvas id="c4" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c4')">Сохранить / Отправить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V5. Industrial</span></div><canvas id="c5" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c5')">Сохранить / Отправить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V6. Sale</span></div><canvas id="c6" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c6')">Сохранить / Отправить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V7. Geo</span></div><canvas id="c7" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c7')">Сохранить / Отправить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V8. Frame</span></div><canvas id="c8" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c8')">Сохранить / Отправить</button></div>
   </div>
+
+  <button class="btn-generate" id="renderBtn">Генерировать</button>
 </div>
 
 <script>
-  // Telegram WebApp init (если открыто внутри Telegram)
-  const tg = window.Telegram ? window.Telegram.WebApp : null;
-  if (tg) {
-    tg.ready();
-    tg.expand(); // на весь экран
-    tg.setHeaderColor('#09090b');
-    tg.setBackgroundColor('#09090b');
-  }
+  // --- TELEGRAM SETUP ---
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor('#18181b');
+  tg.setBackgroundColor('#09090b');
 
   // --- CONFIG ---
-  const W = 1080, H = 1920;
+  // 🔴 ВСТАВЬ СЮДА ССЫЛКИ НА СВОИ ЛОГОТИПЫ В GITHUB 🔴
+  // Пример: 'csg': 'https://твой-ник.github.io/assets/logo_csg.png',
+  const LOGO_URLS = {
+    'none': null,
+    'csg': 'https://via.placeholder.com/300x150/FFFFFF/000000?text=CSG',
+    'mstore': 'https://via.placeholder.com/300x150/FFFFFF/000000?text=M-Store',
+    'pss': 'https://via.placeholder.com/300x150/FFFFFF/000000?text=PSS',
+    'cm': 'https://via.placeholder.com/300x150/FFFFFF/000000?text=CM',
+    'polymers': 'https://via.placeholder.com/300x150/FFFFFF/000000?text=Polymers',
+    'horeca': 'https://via.placeholder.com/300x150/FFFFFF/000000?text=Horeca',
+  };
 
-  
+  const W = 1080, H = 1920;
   const FONT_MANROPE = "'Manrope', sans-serif";
   const FONT_INTER = "'Inter', sans-serif";
 
   const state = {
     images: [],
     logo: null,
-    caption: "",
+    title: "",
+    desc: "",
     cta: "",
     accent: "#f59e0b",
-    bgMode: "dark"
   };
 
+  // --- UI HANDLERS ---
+  
   function updateFileLabel(input) {
-    const l = document.getElementById('fileLabel');
-    l.innerText = input.files.length ? `Файлов: ${input.files.length}` : "Нажмите для загрузки...";
+    document.getElementById('fileLabel').innerText = input.files.length 
+      ? `Выбрано файлов: ${input.files.length}` 
+      : "📸 Выбрать фото (до 4 шт)";
   }
 
+  // Logo Logic
+  async function selectLogo(btn, key) {
+    // UI Update
+    document.querySelectorAll('.logo-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if (key === 'custom') {
+      document.getElementById('customLogoInput').click();
+      return;
+    }
+
+    if (key === 'none') {
+      state.logo = null;
+    } else {
+      // Load preset from URL
+      const url = LOGO_URLS[key];
+      if (url) state.logo = await loadImage(url);
+    }
+  }
+
+  async function handleCustomLogo(input) {
+    if(input.files && input.files[0]) {
+      state.logo = await loadImage(URL.createObjectURL(input.files[0]));
+      document.querySelector('.logo-btn[onclick*="custom"]').innerText = "Загружено ✅";
+    }
+  }
+
+  // --- DRAW HELPERS ---
+  
   function getCtx(id) {
     const c = document.getElementById(id);
     const ctx = c.getContext('2d', { alpha: false });
-    ctx.filter = 'none';
-    ctx.globalAlpha = 1;
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
-    ctx.setTransform(1, 0, 0, 1, 0, 0); 
+    ctx.filter = 'none'; ctx.globalAlpha = 1; ctx.setTransform(1, 0, 0, 1, 0, 0); 
     return ctx;
   }
 
-  // --- LOGO HELPERS (THE BOOKMARK FIX) ---
-  
-  // Рисует логотип "язычком" (закладкой) сверху.
-  // xCenter: центр закладки по X
-  // width: ширина язычка
-  function drawLogoBookmark(ctx, xCenter) {
-    if (!state.logo) return;
-    
-    const tagW = 200;
-    const tagH = 140; 
-    const r = 20;
-    const x = xCenter - tagW/2;
-    const y = 0;
-
-    ctx.save();
-    
-    // 1. Draw Tag Background (White or Dark based on style, usually White looks best for logos)
-    ctx.fillStyle = '#ffffff';
-    ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 20; ctx.shadowOffsetY = 5;
-    
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + tagW, y);
-    ctx.lineTo(x + tagW, y + tagH - r);
-    ctx.arcTo(x + tagW, y + tagH, x + tagW - r, y + tagH, r);
-    ctx.lineTo(x + r, y + tagH);
-    ctx.arcTo(x, y + tagH, x, y + tagH - r, r);
-    ctx.closePath();
-    ctx.fill();
-    
-    ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-
-    // 2. Draw Logo Scaled and Centered (ASPECT RATIO FIX)
-    const padding = 20;
-    const maxLogW = tagW - padding * 2;
-    const maxLogH = tagH - padding * 2;
-    
-    const scale = Math.min(maxLogW / state.logo.width, maxLogH / state.logo.height);
-    const finalW = state.logo.width * scale;
-    const finalH = state.logo.height * scale;
-    
-    const logoX = x + (tagW - finalW) / 2;
-    const logoY = y + (tagH - finalH) / 2;
-    
-    ctx.drawImage(state.logo, logoX, logoY, finalW, finalH);
-    ctx.restore();
-  }
-
-  // Parse Text
-  function parseText(raw) {
-    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-    let cta = "";
-    const ctaIdx = lines.findIndex(l => l.toLowerCase().startsWith('cta:') || l.includes('👇'));
-    if (ctaIdx !== -1) {
-      cta = lines[ctaIdx].replace(/^cta:\s*/i, '').trim();
-      lines.splice(ctaIdx, 1);
-    }
-    return { lines, cta };
+  function loadImage(src) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous"; // Important for external URLs
+      img.onload = () => resolve(img);
+      img.onerror = () => resolve(null);
+      img.src = src;
+    });
   }
 
   function wrapText(ctx, text, maxWidth) {
+    if(!text) return [];
     const words = text.split(' ');
-    let lines = [];
-    let currentLine = words[0];
+    let lines = [], currentLine = words[0];
     for (let i = 1; i < words.length; i++) {
       const word = words[i];
       const width = ctx.measureText(currentLine + " " + word).width;
@@ -390,528 +372,377 @@ CTA: Рассчитать стоимость 🔥</textarea>
     return lines;
   }
 
-  // --- DRAW HELPERS ---
-  
-  function drawBackground(ctx, imgs) {
+  function drawImageCover(ctx, img, x, y, w, h, r=0) {
+    if (!img) return;
+    ctx.save();
+    if (r > 0) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.clip(); }
+    const scale = Math.max(w / img.width, h / img.height);
+    const sw = w / scale, sh = h / scale;
+    ctx.drawImage(img, (img.width-sw)/2, (img.height-sh)/2, sw, sh, x, y, w, h);
+    ctx.restore();
+  }
+
+  function drawLogoBookmark(ctx, xCenter) {
+    if (!state.logo) return;
+    const tagW = 200, tagH = 140, r = 20;
+    const x = xCenter - tagW/2;
+    
+    ctx.save();
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 20; ctx.shadowOffsetY = 5;
+    ctx.beginPath();
+    ctx.moveTo(x, 0); ctx.lineTo(x + tagW, 0);
+    ctx.lineTo(x + tagW, tagH - r);
+    ctx.arcTo(x + tagW, tagH, x + tagW - r, tagH, r);
+    ctx.lineTo(x + r, tagH);
+    ctx.arcTo(x, tagH, x, tagH - r, r);
+    ctx.closePath();
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    
+    // Draw Logo
+    const pad = 20;
+    const maxW = tagW - pad*2, maxH = tagH - pad*2;
+    const scale = Math.min(maxW/state.logo.width, maxH/state.logo.height);
+    const fw = state.logo.width * scale, fh = state.logo.height * scale;
+    ctx.drawImage(state.logo, x+(tagW-fw)/2, (tagH-fh)/2, fw, fh);
+    ctx.restore();
+  }
+
+  function drawBackground(ctx) {
     const mode = document.getElementById('bgStyle').value;
     if (mode === 'clean') {
       ctx.fillStyle = '#e5e7eb'; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle='rgba(0,0,0,0.03)';
-      for(let i=0;i<5000;i++) ctx.fillRect(Math.random()*W, Math.random()*H, 2, 2);
-    } else if (mode === 'blur' && imgs.length > 0) {
-      ctx.drawImage(imgs[0], 0, 0, W, H);
-      ctx.fillStyle = 'rgba(10,10,12,0.85)';
-      ctx.fillRect(0,0,W,H);
-      ctx.filter = 'blur(60px) saturate(120%)';
-      ctx.drawImage(imgs[0], -200, -200, W+400, H+400);
-      ctx.filter = 'none';
+    } else if (mode === 'blur' && state.images.length > 0) {
+      ctx.drawImage(state.images[0], 0, 0, W, H);
+      ctx.fillStyle = 'rgba(10,10,12,0.85)'; ctx.fillRect(0,0,W,H);
+      // Note: Heavy blur is slow, simulated here
+      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,W,H); 
     } else {
-      ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0,0,W,H);
-      ctx.strokeStyle = '#1a1a1a'; ctx.lineWidth = 2;
-      ctx.beginPath();
-      for(let x=0; x<W; x+=120) { ctx.moveTo(x,0); ctx.lineTo(x,H); }
-      for(let y=0; y<H; y+=120) { ctx.moveTo(0,y); ctx.lineTo(W,y); }
+      ctx.fillStyle = '#111'; ctx.fillRect(0,0,W,H);
+      ctx.strokeStyle = '#222'; ctx.lineWidth = 2;
+      for(let i=0; i<W; i+=120) { ctx.moveTo(i,0); ctx.lineTo(i,H); }
       ctx.stroke();
     }
   }
 
-  function drawImageCover(ctx, img, x, y, w, h, r = 0) {
-    if (!img) return;
-    ctx.save();
-    if (r > 0) {
-      ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.clip();
-    }
-    const scale = Math.max(w / img.width, h / img.height);
-    const sw = w / scale, sh = h / scale;
-    ctx.drawImage(img, (img.width-sw)/2, (img.height-sh)/2, sw, sh, x, y, w, h);
-    if(r>0){ ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth=1; ctx.stroke(); }
-    ctx.restore();
-  }
-
-  // --- TEMPLATES ---
+  // --- RENDERERS (Updated to use separated text fields) ---
 
   function renderV1(ctx) {
-    drawBackground(ctx, state.images);
-    if (state.images.length > 0) {
+    drawBackground(ctx);
+    if (state.images[0]) {
       drawImageCover(ctx, state.images[0], 0, 0, W, H);
       const g = ctx.createLinearGradient(0, H/2, 0, H);
-      g.addColorStop(0, 'rgba(0,0,0,0)');
-      g.addColorStop(1, '#000000'); 
+      g.addColorStop(0, 'transparent'); g.addColorStop(1, '#000');
       ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
     }
-    
-    // Logo Bookmark Top Center
     drawLogoBookmark(ctx, W/2);
 
-    const { lines, cta } = parseText(state.caption);
-    let bottomMargin = 100; 
+    let y = H - 100;
     
-    if (cta) {
+    // CTA
+    if (state.cta) {
       ctx.font = `700 40px ${FONT_INTER}`;
-      const btnW = ctx.measureText(cta).width + 80;
-      const btnY = H - bottomMargin - 100;
+      const btnW = ctx.measureText(state.cta).width + 80;
+      y -= 120;
       ctx.fillStyle = state.accent;
-      ctx.beginPath(); ctx.roundRect(60, btnY, btnW, 100, 12); ctx.fill();
-      ctx.fillStyle = '#000';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(cta, 60 + btnW/2, btnY + 50);
-      bottomMargin += 160;
+      ctx.beginPath(); ctx.roundRect(60, y, btnW, 100, 16); ctx.fill();
+      ctx.fillStyle = '#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(state.cta, 60+btnW/2, y+50);
+      y -= 40;
     }
 
-    ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
-    let y = H - bottomMargin;
+    // Desc
+    if(state.desc) {
+      ctx.font = `500 42px ${FONT_INTER}`;
+      ctx.fillStyle = '#d4d4d8'; ctx.textAlign='left';
+      wrapText(ctx, state.desc, W-120).reverse().forEach(line => {
+        y -= 55; ctx.fillText(line, 60, y);
+      });
+      y -= 30;
+    }
 
-    for(let i=lines.length-1; i>=0; i--){
-      const isTitle = (i === 0);
-      ctx.font = isTitle ? `800 90px ${FONT_MANROPE}` : `500 42px ${FONT_INTER}`;
-      ctx.fillStyle = isTitle ? '#fff' : 'rgba(255,255,255,0.85)';
-      const lns = wrapText(ctx, lines[i], W - 120);
-      for(let j=lns.length-1; j>=0; j--){
-         ctx.fillText(lns[j], 60, y);
-         y -= (isTitle ? 100 : 55);
-      }
-      y -= 25;
+    // Title
+    if(state.title) {
+      ctx.font = `800 90px ${FONT_MANROPE}`;
+      ctx.fillStyle = '#fff';
+      wrapText(ctx, state.title, W-120).reverse().forEach(line => {
+        y -= 100; ctx.fillText(line, 60, y);
+      });
     }
   }
 
   function renderV2(ctx) {
-    drawBackground(ctx, []);
-    const count = Math.min(state.images.length, 4);
-    const gap = 20, pad = 40;
-    const areaH = H * 0.55; 
-
-    let slots = [];
-    if(count === 1) slots.push({x:pad,y:pad,w:W-pad*2,h:areaH});
-    else if(count === 2) {
-      slots.push({x:pad,y:pad,w:W-pad*2,h:(areaH-gap)/2});
-      slots.push({x:pad,y:pad+(areaH-gap)/2+gap,w:W-pad*2,h:(areaH-gap)/2});
-    } else if(count === 3){
-       const th = areaH * 0.6; const bh = areaH - th - gap;
-       slots.push({x:pad,y:pad,w:W-pad*2,h:th});
-       slots.push({x:pad,y:pad+th+gap,w:(W-pad*2-gap)/2,h:bh});
-       slots.push({x:pad+(W-pad*2-gap)/2+gap,y:pad+th+gap,w:(W-pad*2-gap)/2,h:bh});
-    } else {
-       const ch = (areaH-gap)/2, cw = (W-pad*2-gap)/2;
-       slots.push({x:pad,y:pad,w:cw,h:ch}); slots.push({x:pad+cw+gap,y:pad,w:cw,h:ch});
-       slots.push({x:pad,y:pad+ch+gap,w:cw,h:ch}); slots.push({x:pad+cw+gap,y:pad+ch+gap,w:cw,h:ch});
-    }
-
-    slots.forEach((s,i) => drawImageCover(ctx, state.images[i], s.x, s.y, s.w, s.h, 16));
+    ctx.fillStyle = '#111'; ctx.fillRect(0,0,W,H);
+    // Grid Logic Simplified
+    const pad=40, gap=20, areaH=H*0.55;
+    const imgs = state.images.slice(0,4);
     
-    // Logo Bookmark Overlay on top of image area
+    if(imgs.length === 1) drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, areaH);
+    else if(imgs.length === 2) {
+      const h = (areaH-gap)/2;
+      drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, h);
+      drawImageCover(ctx, imgs[1], pad, pad+h+gap, W-pad*2, h);
+    } else if(imgs.length >= 3) {
+      // Simple 3 grid
+      const mainH = areaH * 0.6;
+      drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, mainH);
+      const subW = (W-pad*2-gap)/2;
+      drawImageCover(ctx, imgs[1], pad, pad+mainH+gap, subW, areaH-mainH-gap);
+      if(imgs[2]) drawImageCover(ctx, imgs[2], pad+subW+gap, pad+mainH+gap, subW, areaH-mainH-gap);
+    }
+    
     drawLogoBookmark(ctx, W/2);
-
-    const { lines, cta } = parseText(state.caption);
-    const bottomAreaCenter = areaH + (H - areaH)/2;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     
-    let totalH = 0;
-    if(lines[0]) totalH += 100;
-    if(lines[1]) totalH += 100; 
-    if(cta) totalH += 100;
-
-    let startY = bottomAreaCenter - totalH/2;
-
-    if(lines[0]) {
-      ctx.font = `800 75px ${FONT_MANROPE}`;
-      ctx.fillStyle = '#fff';
-      wrapText(ctx, lines[0], W-100).forEach(l => { ctx.fillText(l, W/2, startY); startY+=85; });
+    const centerBlockY = areaH + (H-areaH)/2;
+    ctx.textAlign = 'center'; ctx.textBaseline='middle';
+    
+    let ty = centerBlockY - 100;
+    if(state.title) {
+      ctx.font = `800 75px ${FONT_MANROPE}`; ctx.fillStyle='#fff';
+      wrapText(ctx, state.title, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=85; });
     }
-    
-    if(lines[1]) {
-      startY += 10;
-      ctx.font = `400 38px ${FONT_INTER}`;
-      ctx.fillStyle = '#a1a1aa';
-      wrapText(ctx, lines.slice(1).join(' '), W-100).forEach(l => { ctx.fillText(l, W/2, startY); startY+=50; });
+    if(state.desc) {
+      ty+=20; ctx.font=`400 38px ${FONT_INTER}`; ctx.fillStyle='#a1a1aa';
+      wrapText(ctx, state.desc, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
     }
-    
-    if(cta) {
-      startY += 50;
-      ctx.fillStyle = state.accent;
-      ctx.font = `700 42px ${FONT_INTER}`;
-      ctx.fillText(cta, W/2, startY);
-      const w = ctx.measureText(cta).width;
-      ctx.fillRect(W/2 - w/2, startY + 25, w, 4);
+    if(state.cta) {
+      ty+=60; ctx.font=`700 42px ${FONT_INTER}`; ctx.fillStyle=state.accent;
+      ctx.fillText(state.cta, W/2, ty);
+      ctx.fillRect(W/2 - 100, ty+30, 200, 4);
     }
   }
 
   function renderV3(ctx) {
-    if(state.images.length) {
-      drawImageCover(ctx, state.images[0], 0, 0, W, H);
+    if(state.images[0]) {
+      drawImageCover(ctx, state.images[0], 0,0,W,H);
       ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0,0,W,H);
-    } else drawBackground(ctx, []);
+    } else { ctx.fillStyle='#111'; ctx.fillRect(0,0,W,H); }
     
     drawLogoBookmark(ctx, W/2);
     
-    const { lines, cta } = parseText(state.caption);
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    let cy = H/2;
-    if(lines.length) {
-      ctx.font = `900 130px ${FONT_MANROPE}`;
-      const wrapped = wrapText(ctx, lines[0].toUpperCase(), W-80);
-      let ty = cy - (wrapped.length * 130)/2;
-      wrapped.forEach(l => {
-        ctx.fillStyle = '#fff'; ctx.fillText(l, W/2, ty); ty += 130;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    let ty = H/2 - 100;
+    
+    if(state.title) {
+      ctx.font = `900 120px ${FONT_MANROPE}`; ctx.fillStyle='#fff';
+      wrapText(ctx, state.title.toUpperCase(), W-60).forEach(l => {
+        ctx.fillText(l, W/2, ty); ty+=120;
       });
-      cy = ty;
     }
-    ctx.fillStyle = state.accent; ctx.fillRect(W/2 - 80, cy + 30, 160, 8);
-    if(lines.length > 1) {
-      ctx.font = `500 48px ${FONT_INTER}`; ctx.fillStyle = '#d4d4d8';
-      let subY = cy + 100;
-      wrapText(ctx, lines.slice(1).join(' '), W-200).forEach(l => { ctx.fillText(l, W/2, subY); subY+=60; });
+    
+    ctx.fillStyle = state.accent; ctx.fillRect(W/2-60, ty, 120, 8); ty+=80;
+
+    if(state.desc) {
+      ctx.font = `500 48px ${FONT_INTER}`; ctx.fillStyle='#ccc';
+      wrapText(ctx, state.desc, W-150).forEach(l => {
+         ctx.fillText(l, W/2, ty); ty+=60;
+      });
     }
-    if(cta) {
-       ctx.save(); ctx.translate(W/2, H-250);
-       ctx.font = `700 45px ${FONT_INTER}`;
-       const w = ctx.measureText(cta).width + 100;
-       ctx.fillStyle = state.accent;
-       ctx.transform(1, 0, -0.2, 1, 0, 0);
-       ctx.fillRect(-w/2, -50, w, 100);
-       ctx.setTransform(1, 0, 0, 1, W/2, H-250);
-       ctx.fillStyle = '#000'; ctx.fillText(cta, 0, 5); 
-       ctx.restore();
+
+    if(state.cta) {
+      ty = H - 250;
+      ctx.save(); ctx.translate(W/2, ty);
+      ctx.transform(1,0,-0.2,1,0,0);
+      ctx.fillStyle=state.accent; ctx.fillRect(-250, -50, 500, 100);
+      ctx.setTransform(1,0,0,1,W/2,ty);
+      ctx.fillStyle='#000'; ctx.font=`700 40px ${FONT_INTER}`;
+      ctx.fillText(state.cta, 0, 5);
+      ctx.restore();
     }
   }
 
   function renderV4(ctx) {
-    drawBackground(ctx, state.images);
-    const cardH = H * 0.72; 
-    const cardY = (H - cardH) / 2;
-    const cardW = W - 80; const cardX = 40;
-    const isLight = document.getElementById('bgStyle').value === 'clean';
-    
-    ctx.save();
-    ctx.fillStyle = isLight ? '#fff' : '#18181b';
-    ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 50;
-    ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 24); ctx.fill();
-    ctx.shadowBlur = 0; ctx.clip(); 
-
-    const imgH = cardH * 0.50; 
-    if(state.images.length > 0) drawImageCover(ctx, state.images[0], cardX, cardY, cardW, imgH);
-    else { ctx.fillStyle = '#333'; ctx.fillRect(cardX, cardY, cardW, imgH); }
-
-    const contentY = cardY + imgH + 60; 
-    const contentW = cardW - 80; const contentX = cardX + 40;
-    const { lines, cta } = parseText(state.caption);
-    let currentY = contentY;
-
-    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    if (lines.length > 0) {
-      ctx.fillStyle = isLight ? '#000' : '#fff';
-      ctx.font = `800 60px ${FONT_MANROPE}`;
-      wrapText(ctx, lines[0], contentW).forEach(l => { ctx.fillText(l, contentX, currentY); currentY += 70; });
-    }
-    if (lines.length > 1) {
-      currentY += 20;
-      ctx.fillStyle = isLight ? '#555' : '#a1a1aa';
-      ctx.font = `400 36px ${FONT_INTER}`;
-      const wrapped = wrapText(ctx, lines.slice(1).join(' '), contentW);
-      for(let i=0; i<Math.min(wrapped.length, 3); i++) {
-        ctx.fillText(wrapped[i], contentX, currentY); currentY += 45;
-      }
-    }
-    if (cta) {
-      const btnH = 100; const btnY = cardY + cardH - btnH - 40;
-      ctx.fillStyle = state.accent; ctx.fillRect(contentX, btnY, contentW, btnH);
-      ctx.fillStyle = '#000'; ctx.font = `700 34px ${FONT_INTER}`;
-      ctx.textAlign = 'center'; ctx.textBaseline='middle';
-      ctx.fillText(cta, contentX + contentW/2, btnY + btnH/2);
-    }
-    ctx.restore();
-    
-    // Logo centered top
-    drawLogoBookmark(ctx, W/2);
+     drawBackground(ctx);
+     const cX=40, cY=(H*0.15), cW=W-80, cH=H*0.7;
+     
+     ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=40;
+     ctx.fillStyle = document.getElementById('bgStyle').value === 'clean' ? '#fff' : '#18181b';
+     ctx.beginPath(); ctx.roundRect(cX, cY, cW, cH, 24); ctx.fill(); ctx.shadowBlur=0;
+     
+     ctx.save(); ctx.clip();
+     if(state.images[0]) drawImageCover(ctx, state.images[0], cX, cY, cW, cH*0.55);
+     
+     let ty = cY + cH*0.55 + 60;
+     const tx = cX + 50, tW = cW - 100;
+     const isLight = document.getElementById('bgStyle').value === 'clean';
+     
+     ctx.textAlign='left'; ctx.textBaseline='top';
+     
+     if(state.title) {
+       ctx.fillStyle = isLight ? '#000' : '#fff';
+       ctx.font = `800 55px ${FONT_MANROPE}`;
+       wrapText(ctx, state.title, tW).forEach(l => { ctx.fillText(l, tx, ty); ty+=65; });
+     }
+     
+     if(state.desc) {
+       ty+=20; ctx.fillStyle = isLight ? '#555' : '#a1a1aa';
+       ctx.font = `400 34px ${FONT_INTER}`;
+       wrapText(ctx, state.desc, tW).slice(0,3).forEach(l => { ctx.fillText(l, tx, ty); ty+=45; });
+     }
+     
+     if(state.cta) {
+       const btnY = cY + cH - 140;
+       ctx.fillStyle=state.accent; ctx.fillRect(tx, btnY, tW, 90);
+       ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
+       ctx.font=`700 32px ${FONT_INTER}`;
+       ctx.fillText(state.cta, tx+tW/2, btnY+45);
+     }
+     ctx.restore();
+     drawLogoBookmark(ctx, W/2);
   }
 
   function renderV5(ctx) {
     const isClean = document.getElementById('bgStyle').value === 'clean';
     ctx.fillStyle = isClean ? '#f3f4f6' : '#111'; ctx.fillRect(0,0,W,H);
     
-    const splitY = H * 0.65;
-    if (state.images.length >= 1) {
-       drawImageCover(ctx, state.images[0], 0, 0, W, splitY);
-       if(state.images.length >= 2) {
-         drawImageCover(ctx, state.images[1], W/2, 0, W/2, splitY);
-         ctx.fillStyle='#fff'; ctx.fillRect(W/2-2, 0, 4, splitY);
-       }
-    }
-    
-    // Logo Bookmark
+    const splitH = H*0.6;
+    if(state.images[0]) drawImageCover(ctx, state.images[0], 0, 0, W, splitH);
     drawLogoBookmark(ctx, W/2);
 
-    const { lines, cta } = parseText(state.caption);
-    const bottomH = H - splitY;
-    const centerY = splitY + bottomH/2;
-
-    let blockH = 0;
-    if(lines[0]) blockH += 90 * wrapText(ctx, lines[0], W-100).length;
-    blockH += 80; 
-    if(cta) blockH += 40;
-
-    let ty = centerY - blockH/2; 
-    if (ty < splitY + 40) ty = splitY + 40; 
-
-    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillStyle = isClean ? '#111' : '#fff';
+    let ty = splitH + 100;
+    ctx.textAlign='center';
     
-    if(lines.length > 0) {
-      ctx.font = `800 80px ${FONT_MANROPE}`;
-      wrapText(ctx, lines[0], W-100).forEach(l => {
-        ctx.fillText(l, W/2, ty); ty += 90;
-      });
+    if(state.title) {
+       ctx.fillStyle = isClean ? '#000' : '#fff';
+       ctx.font = `800 70px ${FONT_MANROPE}`;
+       wrapText(ctx, state.title, W-80).forEach(l => { ctx.fillText(l, W/2, ty); ty+=80; });
     }
-
-    ctx.fillStyle = state.accent;
-    ctx.fillRect(W/2 - 40, ty + 20, 80, 6);
-    ty += 80;
-
-    if (cta) {
-       ctx.font = `600 40px ${FONT_INTER}`;
-       ctx.fillStyle = isClean ? '#444' : '#ccc';
-       ctx.fillText(cta + " →", W/2, ty);
+    
+    ctx.fillStyle=state.accent; ctx.fillRect(W/2-40, ty+10, 80, 6); ty+=70;
+    
+    if(state.cta) {
+       ctx.fillStyle = isClean ? '#444' : '#aaa';
+       ctx.font=`600 40px ${FONT_INTER}`;
+       ctx.fillText(state.cta + " →", W/2, ty);
     }
   }
 
   function renderV6(ctx) {
-    ctx.fillStyle = '#09090b'; ctx.fillRect(0,0,W,H);
-    const imgH = H * 0.55;
-    if(state.images.length > 0) {
-      drawImageCover(ctx, state.images[0], 0, 0, W, imgH);
-      const g = ctx.createLinearGradient(0, imgH-200, 0, imgH);
-      g.addColorStop(0, 'rgba(9,9,11,0)'); g.addColorStop(1, '#09090b');
-      ctx.fillStyle = g; ctx.fillRect(0, imgH-200, W, 200);
-    }
-    
-    // Logo Bookmark Left Side
-    drawLogoBookmark(ctx, 160);
+     ctx.fillStyle='#09090b'; ctx.fillRect(0,0,W,H);
+     const imgH = H*0.55;
+     if(state.images[0]) {
+       drawImageCover(ctx, state.images[0], 0,0,W,imgH);
+       const g = ctx.createLinearGradient(0, imgH-200, 0, imgH);
+       g.addColorStop(0, 'transparent'); g.addColorStop(1, '#09090b');
+       ctx.fillStyle=g; ctx.fillRect(0,imgH-200,W,200);
+     }
+     drawLogoBookmark(ctx, 150);
+     
+     // Badge
+     const bx=W-140, by=imgH;
+     ctx.beginPath(); ctx.arc(bx, by, 90, 0, Math.PI*2);
+     ctx.fillStyle=state.accent; ctx.fill();
+     ctx.font='80px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+     ctx.fillText('🔥', bx, by+5);
 
-    // Fire Badge
-    const cx = W - 140; const cy = imgH; 
-    ctx.beginPath(); ctx.arc(cx, cy, 100, 0, Math.PI*2);
-    ctx.fillStyle = state.accent; ctx.fill();
-    ctx.shadowColor='rgba(245, 158, 11, 0.5)'; ctx.shadowBlur=30; ctx.stroke(); ctx.shadowBlur=0;
-    ctx.font = "100px serif"; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText("🔥", cx, cy + 10);
+     let ty = imgH + 100;
+     if(state.title) {
+       ctx.textAlign='left'; ctx.fillStyle='#fff';
+       ctx.font=`800 100px ${FONT_MANROPE}`;
+       wrapText(ctx, state.title.toUpperCase(), W-100).forEach(l => {
+         ctx.fillText(l, 50, ty); ty+=100;
+       });
+     }
+     
+     ty+=20; ctx.fillStyle='#333'; ctx.fillRect(50, ty, W-100, 2); 
+     ctx.fillStyle=state.accent; ctx.fillRect(50, ty-4, 150, 10); ty+=60;
 
-    const { lines, cta } = parseText(state.caption);
-    let ty = imgH + 120; 
-    let tx = 60;
-
-    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-    if(lines.length > 0) {
-      ctx.font = `800 110px ${FONT_MANROPE}`;
-      ctx.fillStyle = '#fff';
-      wrapText(ctx, lines[0].toUpperCase(), W - 100).forEach(l => {
-        ctx.fillText(l, tx, ty); ty += 100;
-      });
-    }
-
-    ty += 30;
-    ctx.fillStyle = '#333'; ctx.fillRect(tx, ty, W-120, 2);
-    ctx.fillStyle = state.accent;
-    for(let i=0; i<200; i+=40) ctx.fillRect(tx + i, ty-4, 20, 10);
-    ty += 60;
-
-    if(lines.length > 1) {
-      ctx.font = `500 40px ${FONT_INTER}`;
-      ctx.fillStyle = '#a1a1aa';
-      wrapText(ctx, lines.slice(1).join(' '), W - 100).forEach(l => {
-        ctx.fillText(l, tx, ty); ty += 50;
-      });
-    }
-
-    if(cta) {
-       const btnY = H - 180;
-       ctx.fillStyle = '#fff'; ctx.fillRect(40, btnY, W-80, 120);
-       ctx.fillStyle = '#000'; ctx.font = `700 44px ${FONT_MANROPE}`;
-       ctx.textAlign='center'; ctx.textBaseline='middle';
-       ctx.fillText(cta.toUpperCase(), W/2, btnY + 60);
-    }
+     if(state.desc) {
+       ctx.fillStyle='#a1a1aa'; ctx.font=`500 40px ${FONT_INTER}`;
+       wrapText(ctx, state.desc, W-100).forEach(l => { ctx.fillText(l, 50, ty); ty+=50; });
+     }
   }
 
-  // === V7: GEOMETRIC CUT (NEW) ===
   function renderV7(ctx) {
-    ctx.fillStyle = '#111'; ctx.fillRect(0,0,W,H);
-    
-    // Geometric Image Cut
-    if(state.images.length > 0) {
+    ctx.fillStyle='#111'; ctx.fillRect(0,0,W,H);
+    if(state.images[0]) {
       ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(0,0);
-      ctx.lineTo(W, 0);
-      ctx.lineTo(W, H * 0.65); // High point right
-      ctx.lineTo(0, H * 0.55); // Low point left
-      ctx.closePath();
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(W,0); ctx.lineTo(W, H*0.65); ctx.lineTo(0, H*0.55); ctx.closePath();
       ctx.clip();
-      drawImageCover(ctx, state.images[0], 0, 0, W, H * 0.7);
-      
-      // Gradient Overlay inside cut
-      const g = ctx.createLinearGradient(0, H*0.4, 0, H*0.7);
-      g.addColorStop(0, 'rgba(0,0,0,0)');
-      g.addColorStop(1, '#111');
-      ctx.fillStyle = g; ctx.fillRect(0,0,W,H*0.7);
+      drawImageCover(ctx, state.images[0], 0, 0, W, H*0.7);
       ctx.restore();
       
-      // Accent Border Line
-      ctx.beginPath();
-      ctx.moveTo(0, H * 0.55);
-      ctx.lineTo(W, H * 0.65);
-      ctx.lineWidth = 8;
-      ctx.strokeStyle = state.accent;
-      ctx.stroke();
+      ctx.strokeStyle=state.accent; ctx.lineWidth=8;
+      ctx.beginPath(); ctx.moveTo(0,H*0.55); ctx.lineTo(W,H*0.65); ctx.stroke();
     }
+    drawLogoBookmark(ctx, W-150);
     
-    drawLogoBookmark(ctx, W - 140); // Right side bookmark
-
-    const { lines, cta } = parseText(state.caption);
-    let ty = H * 0.65 + 80;
-    
-    ctx.textAlign = 'left';
-    
-    // Bold Title
-    if(lines[0]) {
-      ctx.fillStyle = '#fff';
-      ctx.font = `800 100px ${FONT_MANROPE}`;
-      wrapText(ctx, lines[0], W-100).forEach(l => {
-        ctx.fillText(l, 60, ty); ty+=100;
-      });
+    let ty = H*0.65 + 100;
+    if(state.title) {
+       ctx.fillStyle='#fff'; ctx.font=`800 90px ${FONT_MANROPE}`;
+       wrapText(ctx, state.title, W-100).forEach(l => { ctx.fillText(l, 50, ty); ty+=95; });
     }
-    
-    // Desc
-    if(lines.length > 1) {
-      ty += 20;
-      ctx.fillStyle = '#a1a1aa';
-      ctx.font = `500 40px ${FONT_INTER}`;
-      wrapText(ctx, lines.slice(1).join(' '), W-100).forEach(l => {
-        ctx.fillText(l, 60, ty); ty+=50;
-      });
+    if(state.desc) {
+       ty+=20; ctx.fillStyle='#888'; ctx.font=`500 38px ${FONT_INTER}`;
+       wrapText(ctx, state.desc, W-100).forEach(l => { ctx.fillText(l, 50, ty); ty+=45; });
     }
-    
-    // Outline Button
-    if(cta) {
-      const btnY = H - 180;
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
-      ctx.strokeRect(60, btnY, W-120, 100);
-      
-      ctx.fillStyle = state.accent;
-      ctx.textAlign = 'center'; ctx.textBaseline='middle';
-      ctx.font = `700 36px ${FONT_MANROPE}`;
-      ctx.fillText(cta, W/2, btnY+50);
+    if(state.cta) {
+       const by = H-180;
+       ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.strokeRect(50, by, W-100, 100);
+       ctx.fillStyle=state.accent; ctx.textAlign='center'; ctx.font=`700 36px ${FONT_MANROPE}`;
+       ctx.fillText(state.cta, W/2, by+55);
     }
   }
 
-  // === V8: SOLID FRAME (NEW) ===
   function renderV8(ctx) {
-    // Bg Image with Fade
-    if(state.images.length > 0) {
-       drawImageCover(ctx, state.images[0], 0, 0, W, H);
-       ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0,0,W,H);
-    } else {
-       ctx.fillStyle = '#222'; ctx.fillRect(0,0,W,H);
-    }
+    if(state.images[0]) {
+      drawImageCover(ctx, state.images[0], 0,0,W,H);
+      ctx.fillStyle='rgba(0,0,0,0.65)'; ctx.fillRect(0,0,W,H);
+    } else { ctx.fillStyle='#222'; ctx.fillRect(0,0,W,H); }
     
     drawLogoBookmark(ctx, W/2);
 
-    // Main Floating Frame
-    const frameW = W - 100;
-    const frameH = H - 300;
-    const frameX = 50;
-    const frameY = 200;
-
-    // Glass effect background
-    ctx.save();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.rect(frameX, frameY, frameW, frameH);
-    ctx.fill();
-    ctx.stroke();
-
-    // Solid Corners
-    ctx.fillStyle = state.accent;
-    const cSize = 60;
-    ctx.fillRect(frameX - 4, frameY - 4, cSize, 8); // TL Hor
-    ctx.fillRect(frameX - 4, frameY - 4, 8, cSize); // TL Ver
+    const fx=50, fy=200, fw=W-100, fh=H-300;
+    ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.strokeRect(fx,fy,fw,fh);
     
-    ctx.fillRect(frameX + frameW - cSize + 4, frameY - 4, cSize, 8); // TR
-    ctx.fillRect(frameX + frameW + 4 - 8, frameY - 4, 8, cSize); 
+    // Corners
+    ctx.fillStyle=state.accent; const s=60;
+    ctx.fillRect(fx-4, fy-4, s, 8); ctx.fillRect(fx-4, fy-4, 8, s);
+    ctx.fillRect(fx+fw-s, fy-4, s+8, 8); ctx.fillRect(fx+fw, fy-4, 8, s);
+    ctx.fillRect(fx-4, fy+fh, s, 8); ctx.fillRect(fx-4, fy+fh-s, 8, s+8);
+    ctx.fillRect(fx+fw-s, fy+fh, s+8, 8); ctx.fillRect(fx+fw, fy+fh-s, 8, s+8);
 
-    ctx.fillRect(frameX - 4, frameY + frameH + 4 - 8, cSize, 8); // BL
-    ctx.fillRect(frameX - 4, frameY + frameH - cSize + 4, 8, cSize);
+    const cy = fy+fh/2;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
     
-    ctx.fillRect(frameX + frameW - cSize + 4, frameY + frameH + 4 - 8, cSize, 8); // BR
-    ctx.fillRect(frameX + frameW + 4 - 8, frameY + frameH - cSize + 4, 8, cSize);
-
-    // Text Content Centered in Frame
-    const { lines, cta } = parseText(state.caption);
-    ctx.textAlign = 'center'; ctx.textBaseline='middle';
-    
-    let cy = frameY + frameH / 2;
-    
-    // Shift up to fit CTA
-    if(lines.length > 0) {
-      ctx.fillStyle = '#fff';
-      ctx.font = `800 90px ${FONT_MANROPE}`;
-      const wrapped = wrapText(ctx, lines[0].toUpperCase(), frameW - 80);
-      let ty = cy - (wrapped.length * 100) / 2 - 60;
-      
-      wrapped.forEach(l => {
-         ctx.fillText(l, W/2, ty); ty += 100;
-      });
-      
-      if(lines.length > 1) {
-         ty += 20;
-         ctx.fillStyle = '#d4d4d8';
-         ctx.font = `500 42px ${FONT_INTER}`;
-         wrapText(ctx, lines.slice(1).join(' '), frameW - 120).forEach(l => {
-           ctx.fillText(l, W/2, ty); ty += 55;
-         });
-      }
-      
-      if(cta) {
-         const btnY = frameY + frameH - 140;
-         ctx.fillStyle = state.accent;
-         ctx.fillRect(frameX + 60, btnY, frameW - 120, 90);
-         ctx.fillStyle = '#000';
-         ctx.font = `700 38px ${FONT_MANROPE}`;
-         ctx.fillText(cta, W/2, btnY + 45);
-      }
+    let ty = cy - 50;
+    if(state.title) {
+      ctx.fillStyle='#fff'; ctx.font=`800 80px ${FONT_MANROPE}`;
+      const lines = wrapText(ctx, state.title.toUpperCase(), fw-80);
+      ty -= (lines.length*90)/2;
+      lines.forEach(l => { ctx.fillText(l, W/2, ty); ty+=90; });
     }
-    ctx.restore();
+    
+    if(state.cta) {
+      const by = fy+fh - 140;
+      ctx.fillStyle=state.accent; ctx.fillRect(fx+80, by, fw-160, 90);
+      ctx.fillStyle='#000'; ctx.font=`700 36px ${FONT_MANROPE}`;
+      ctx.fillText(state.cta, W/2, by+45);
+    }
   }
 
   // --- ACTIONS ---
 
-  async function loadImages(fileList) {
-    const promises = Array.from(fileList).map(file => new Promise(r => {
-      const img = new Image();
-      img.onload = () => r(img);
-      img.src = URL.createObjectURL(file);
-    }));
-    return Promise.all(promises);
-  }
-
   async function generate() {
     const btn = document.getElementById('renderBtn');
-    btn.innerText = "Генерация..."; btn.style.opacity = "0.7";
-
-    state.caption = document.getElementById('caption').value;
+    btn.innerText = "⏳ Рисую...";
+    
+    // Read Inputs
+    state.title = document.getElementById('txtTitle').value;
+    state.desc = document.getElementById('txtDesc').value;
+    state.cta = document.getElementById('txtBtn').value;
     state.accent = document.getElementById('accentColor').value;
-    state.bgMode = document.getElementById('bgStyle').value;
-
-    const imgInp = document.getElementById('imgInput');
-    if(imgInp.files.length) state.images = await loadImages(imgInp.files);
-
-    const logoInp = document.getElementById('logoInput');
-    if(logoInp.files.length) {
-       const ls = await loadImages(logoInp.files);
-       state.logo = ls[0];
+    
+    const files = document.getElementById('imgInput').files;
+    if (files.length) {
+      state.images = await Promise.all(Array.from(files).map(f => loadImage(URL.createObjectURL(f))));
     }
-
+    
+    // Font Check
     await document.fonts.ready;
 
+    // Render All
     renderV1(getCtx('c1'));
     renderV2(getCtx('c2'));
     renderV3(getCtx('c3'));
@@ -920,28 +751,57 @@ CTA: Рассчитать стоимость 🔥</textarea>
     renderV6(getCtx('c6'));
     renderV7(getCtx('c7'));
     renderV8(getCtx('c8'));
-
-    btn.innerText = "Генерировать"; btn.style.opacity = "1";
+    
+    document.getElementById('gridArea').style.display = 'flex';
+    btn.innerText = "Обновить";
+    
+    // Scroll to results
+    document.getElementById('gridArea').scrollIntoView({ behavior: 'smooth' });
   }
 
-  function download(id) {
-    const a = document.createElement('a');
-    a.download = `Metal_Story_${id}.png`;
-    a.href = document.getElementById(id).toDataURL();
-    a.click();
+  // --- SHARING (MOBILE NATIVE) ---
+  
+  async function shareCanvas(id) {
+    const canvas = document.getElementById(id);
+    
+    // 1. Convert to Blob
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    
+    // 2. Prepare File
+    const file = new File([blob], "design_pro.png", { type: "image/png" });
+    
+    // 3. Check if Navigator Share is supported (Mobile)
+    if (navigator.share && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'CSG Design',
+          text: 'Смотри, что я сделал!'
+        });
+      } catch (err) {
+        console.log("Share canceled or failed", err);
+      }
+    } else {
+      // 4. Fallback for Desktop: Direct Download
+      const a = document.createElement('a');
+      a.download = 'design.png';
+      a.href = canvas.toDataURL();
+      a.click();
+    }
   }
 
   document.getElementById('renderBtn').addEventListener('click', generate);
-  
+
+  // Init placeholders
   window.onload = () => {
     ['c1','c2','c3','c4','c5','c6','c7','c8'].forEach(id => {
-      const ctx = getCtx(id);
-      ctx.fillStyle='#18181b'; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle='#333'; ctx.font=`700 40px ${FONT_INTER}`;
-      ctx.textAlign='center'; ctx.fillText("Preview", W/2, H/2);
+       const ctx = getCtx(id);
+       ctx.fillStyle='#111'; ctx.fillRect(0,0,W,H);
+       ctx.fillStyle='#333'; ctx.font=`700 40px ${FONT_INTER}`;
+       ctx.textAlign='center'; ctx.fillText("Preview", W/2, H/2);
     });
   };
 </script>
 </body>
-
 </html>
+```
