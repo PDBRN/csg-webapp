@@ -775,13 +775,13 @@
 
     renderV1(getCtx('c1'));
     renderV2(getCtx('c2'));
-    renderV9(getCtx('c9')); // New Template
     renderV3(getCtx('c3'));
     renderV4(getCtx('c4'));
     renderV5(getCtx('c5'));
     renderV6(getCtx('c6'));
     renderV7(getCtx('c7'));
     renderV8(getCtx('c8'));
+    renderV9(getCtx('c9')); // New Template
     
     document.getElementById('gridArea').style.display = 'flex';
     btn.innerText = "Обновить";
@@ -804,7 +804,7 @@
   document.getElementById('renderBtn').addEventListener('click', generate);
 
   window.onload = () => {
-    ['c1','c2','c9','c3','c4','c5','c6','c7','c8'].forEach(id => {
+    ['c1','c2','c3','c4','c5','c6','c7','c8','c9'].forEach(id => {
        const ctx = getCtx(id);
        ctx.fillStyle='#111'; ctx.fillRect(0,0,W,H);
        ctx.fillStyle='#333'; ctx.font=`700 40px ${FONT_INTER}`;
@@ -814,3 +814,4 @@
 </script>
 </body>
 </html>
+
