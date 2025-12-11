@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-  <title>CSG Metal Pro 3.1</title>
+  <title>CSG Metal Pro 3.2</title>
   
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -36,7 +36,8 @@
       display: flex;
       flex-direction: column;
       width: 100%;
-      padding-bottom: 120px;
+      /* Increased padding so button doesn't overlap content */
+      padding-bottom: 160px;
     }
 
     /* Sidebar */
@@ -129,15 +130,23 @@
     .btn-generate:active { transform: scale(0.98); }
 
     /* Preview Grid */
-    .preview-grid { padding: 20px; display: flex; flex-direction: column; gap: 40px; }
+    .preview-grid { 
+      padding: 20px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 40px; 
+      /* Extra padding at bottom for scrolling past button */
+      padding-bottom: 120px; 
+    }
     .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 10px; }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px; }
     .card-title { font-size: 14px; font-weight: 700; color: #fff; }
     .badge { font-size: 10px; background: #27272a; padding: 4px 8px; border-radius: 6px; color: #aaa; text-transform: uppercase; font-weight: 600; }
     
     canvas { width: 100%; height: auto; border-radius: 8px; display: block; background: #000; margin-bottom: 12px; }
-    .btn-share { background: #3f3f46; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+    .btn-share { background: #3f3f46; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: background 0.2s; }
     .btn-share:hover { background: #52525b; }
+    .btn-share:active { transform: scale(0.98); }
   </style>
 </head>
 <body>
@@ -146,8 +155,8 @@
   <!-- SETTINGS -->
   <div class="sidebar">
     <div class="header">
-      <h1>CSG Metal Pro 3.1</h1>
-      <p>Все логотипы + фиксы</p>
+      <h1>CSG Metal Pro 3.2</h1>
+      <p>Правки V11 и скачивания</p>
     </div>
 
     <!-- 1. PHOTOS -->
@@ -211,13 +220,13 @@
     
     <div class="card"><div class="card-header"><span class="card-title">V3. Big Bold</span><span class="badge">Крупный текст</span></div><canvas id="c3" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c3')">Скачать</button></div>
     
-    <div class="card"><div class="card-header"><span class="card-title">V4. Product Card (Fixed)</span><span class="badge">Карточка</span></div><canvas id="c4" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c4')">Скачать</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V4. Product Card</span><span class="badge">Карточка</span></div><canvas id="c4" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c4')">Скачать</button></div>
     
-    <div class="card"><div class="card-header"><span class="card-title">V9. Gallery (Fixed)</span><span class="badge">Галерея</span></div><canvas id="c9" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c9')">Скачать</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V9. Gallery</span><span class="badge">Галерея</span></div><canvas id="c9" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c9')">Скачать</button></div>
 
     <div class="card"><div class="card-header"><span class="card-title">V10. Classic New Year</span><span class="badge">Red & Snow</span></div><canvas id="c10" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c10')">Скачать</button></div>
 
-    <div class="card"><div class="card-header"><span class="card-title">V11. Clean Catalog (Fixed)</span><span class="badge">Каталог</span></div><canvas id="c11" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c11')">Скачать</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V11. Clean Catalog (FIXED)</span><span class="badge">Каталог</span></div><canvas id="c11" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c11')">Скачать</button></div>
 
     <div class="card"><div class="card-header"><span class="card-title">V12. Golden Luxury</span><span class="badge">Золото</span></div><canvas id="c12" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c12')">Скачать</button></div>
 
@@ -233,7 +242,6 @@
   tg.ready(); tg.expand();
   tg.setHeaderColor('#18181b'); tg.setBackgroundColor('#09090b');
 
-  // ALL LOGOS RESTORED
   const LOGO_URLS = {
     'none': null,
     'csg': 'https://pdbrn.github.io/csg-webapp/assets/logo_csg.png',
@@ -320,7 +328,6 @@
      if(!imgs || imgs.length === 0) {
        ctx.fillStyle = '#222'; ctx.fillRect(x,y,w,h); return;
      }
-     
      const count = Math.min(imgs.length, 4);
 
      if(count === 1) {
@@ -465,7 +472,7 @@
     }
   }
 
-  // V4 FIXED: Solid background for text
+  // V4
   function renderV4(ctx) {
      drawBackground(ctx);
      const cX=60, cY=(H*0.15), cW=W-120, cH=H*0.7;
@@ -479,7 +486,6 @@
      ctx.beginPath(); ctx.roundRect(cX, cY, cW, cH, 30); ctx.fill(); ctx.shadowBlur=0;
      ctx.save(); ctx.clip();
      
-     // 1. Image on top half
      const imgH = cH * 0.55;
      if(state.images.length > 0) {
         drawImageCover(ctx, state.images[0], cX, cY, cW, imgH);
@@ -487,11 +493,9 @@
         ctx.fillStyle = '#333'; ctx.fillRect(cX, cY, cW, imgH);
      }
      
-     // 2. Solid color on bottom half (ensures text readability)
      ctx.fillStyle = cardBg;
      ctx.fillRect(cX, cY + imgH, cW, cH - imgH);
 
-     // 3. Text
      let ty = cY + imgH + 60;
      const tx = cX + 50, tW = cW - 100;
      ctx.textAlign='left'; ctx.textBaseline='top';
@@ -505,7 +509,6 @@
        wrapText(ctx, state.desc, tW).slice(0,3).forEach(l => { ctx.fillText(l, tx, ty); ty+=48; });
      }
      
-     // 4. Button
      if(state.cta) {
        const btnY = cY + cH - 130;
        ctx.fillStyle=state.accent; ctx.beginPath(); ctx.roundRect(tx, btnY, tW, 90, 16); ctx.fill();
@@ -516,19 +519,17 @@
      drawLogoBookmark(ctx, W/2);
   }
 
-  // V9 FIXED: Spacing and alignment
+  // V9
   function renderV9(ctx) {
     ctx.fillStyle='#09090b'; ctx.fillRect(0,0,W,H);
     const imgs = state.images;
-    const bigH = H * 0.50; // 50% height
+    const bigH = H * 0.50;
     const gap = 20;
     
-    // Top Image
     if(imgs[0]) drawImageCover(ctx, imgs[0], 0, 0, W, bigH);
 
-    // Bottom Strip (Reduced height to save space)
     const startY = bigH + gap;
-    const stripH = H * 0.15; // Reduced from 0.18
+    const stripH = H * 0.15;
     const remain = Math.min(imgs.length - 1, 3);
     
     if(remain > 0) {
@@ -542,7 +543,6 @@
     
     drawLogoBookmark(ctx, W/2);
     
-    // Text Start Point
     let ty = startY + stripH + 60;
     ctx.textAlign = 'center'; ctx.textBaseline='top';
     const maxW = W-120;
@@ -556,10 +556,8 @@
         wrapText(ctx, state.desc, maxW).slice(0,3).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
     }
     
-    // CTA Button
     if(state.cta) {
         ty+=50;
-        // Check if button goes off screen
         if (ty + 110 > H) ty = H - 150; 
         
         ctx.fillStyle=state.accent; 
@@ -608,37 +606,32 @@
     }
   }
 
-  // V11 FIXED: Layout and Columns
+  // V11 FIXED for Single Image + Grid
   function renderV11(ctx) {
      ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
      
-     // 1. Calculate Columns
      const count = Math.min(state.images.length, 4);
-     const safeCount = count > 0 ? count : 1;
-     const colW = W / safeCount;
-     const imgH = H * 0.70; // 70% height for images
+     const imgH = H * 0.70; 
      
-     // 2. Draw Images
-     if (count > 0) {
+     if (count <= 1) {
+       // Single Image Mode (No dimming, clean look)
+       if(state.images[0]) drawImageCover(ctx, state.images[0], 0, 0, W, imgH);
+       else { ctx.fillStyle = '#222'; ctx.fillRect(0,0,W,imgH); }
+     } else {
+       // Multi Image Mode (Strips)
+       const colW = W / count;
        for(let i=0; i<count; i++) {
           drawImageCover(ctx, state.images[i], i*colW, 0, colW, imgH);
-          // Darken slightly
-          ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(i*colW, 0, colW, imgH);
-          // Separator lines
-          if(i > 0) { ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.fillRect(i*colW, 0, 2, imgH); }
+          ctx.fillStyle = 'rgba(0,0,0,0.15)'; ctx.fillRect(i*colW, 0, colW, imgH);
+          if(i > 0) { ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillRect(i*colW, 0, 2, imgH); }
        }
-     } else {
-       // Placeholder if no images
-       ctx.fillStyle = '#222'; ctx.fillRect(0,0,W,imgH);
      }
      
      drawLogoBookmark(ctx, W/2);
      
-     // 3. Footer Background (Solid)
      ctx.fillStyle = '#111'; ctx.fillRect(0, imgH, W, H - imgH);
-     ctx.fillStyle = state.accent; ctx.fillRect(0, imgH, W, 8); // Accent strip
+     ctx.fillStyle = state.accent; ctx.fillRect(0, imgH, W, 8); 
      
-     // 4. Content
      let ty = imgH + 80;
      ctx.textAlign = 'center'; ctx.textBaseline='top';
      
@@ -656,10 +649,8 @@
      if(state.cta) {
         ty += 50;
         const btnW = ctx.measureText(state.cta).width + 100;
-        // Outline button
         ctx.strokeStyle = '#444'; ctx.lineWidth=3;
         ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 90, 12); ctx.stroke();
-        
         ctx.fillStyle = state.accent; ctx.font=`700 34px ${FONT_INTER}`; 
         ctx.textBaseline='middle';
         ctx.fillText(state.cta, W/2, ty+45);
@@ -760,7 +751,6 @@
     
     await document.fonts.ready;
 
-    // Render in ORDER
     renderV1(getCtx('c1'));
     renderV2(getCtx('c2'));
     renderV3(getCtx('c3'));
@@ -773,6 +763,8 @@
     
     document.getElementById('gridArea').style.display = 'flex';
     btn.innerText = oldText;
+    
+    // Smooth scroll slightly down
     setTimeout(() => document.querySelector('.preview-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
@@ -781,11 +773,19 @@
     const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
     const file = new File([blob], `story_${id}.png`, { type: "image/png" });
     
-    if (navigator.share && navigator.canShare({ files: [file] })) {
+    let shared = false;
+    // Try Native Share
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       try { 
         await navigator.share({ files: [file] }); 
-      } catch (err) { console.log('Share closed'); }
-    } else {
+        shared = true;
+      } catch (err) { 
+        console.log('Share failed/cancelled, falling back to download'); 
+      }
+    }
+
+    // Force download if share didn't happen (PC/Desktop fallback)
+    if (!shared) {
       const link = document.createElement('a');
       link.href = canvas.toDataURL("image/png");
       link.download = `story_${id}.png`;
