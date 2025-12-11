@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-  <title>CSG Metal Pro 2.0</title>
+  <title>CSG Metal Pro 3.1</title>
   
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -146,8 +146,8 @@
   <!-- SETTINGS -->
   <div class="sidebar">
     <div class="header">
-      <h1>CSG Metal Pro</h1>
-      <p>Конструктор сторис v5.0 (New Year Update)</p>
+      <h1>CSG Metal Pro 3.1</h1>
+      <p>Все логотипы + фиксы</p>
     </div>
 
     <!-- 1. PHOTOS -->
@@ -168,6 +168,8 @@
         <button class="logo-btn" onclick="selectLogo(this, 'mstore')">M-Store</button>
         <button class="logo-btn" onclick="selectLogo(this, 'pss')">ПСС</button>
         <button class="logo-btn" onclick="selectLogo(this, 'cm')">ЦМ</button>
+        <button class="logo-btn" onclick="selectLogo(this, 'polymers')">Полимеры</button>
+        <button class="logo-btn" onclick="selectLogo(this, 'horeca')">Хорека</button>
         <button class="logo-btn" onclick="selectLogo(this, 'custom')">Свой...</button>
       </div>
       <input type="file" id="customLogoInput" accept="image/*" style="display:none" onchange="handleCustomLogo(this)">
@@ -176,9 +178,9 @@
     <!-- 3. TEXT -->
     <div class="control-group">
       <label>3. Контент</label>
-      <input type="text" id="txtTitle" placeholder="Заголовок (например: Арматура А500)" value="Новогодняя распродажа">
-      <textarea id="txtDesc" placeholder="Описание (2-3 строки)">Скидки до 20% на весь ассортимент металлопроката. Успейте заказать до 31 декабря!</textarea>
-      <input type="text" id="txtBtn" placeholder="Текст на кнопке" value="Получить прайс 🎄">
+      <input type="text" id="txtTitle" placeholder="Заголовок" value="Новогодняя распродажа">
+      <textarea id="txtDesc" placeholder="Описание">Скидки до 20% на весь ассортимент. Успейте заказать до 31 декабря!</textarea>
+      <input type="text" id="txtBtn" placeholder="Текст кнопки" value="Получить прайс 🎄">
     </div>
 
     <!-- 4. STYLE -->
@@ -190,37 +192,36 @@
         </div>
       </div>
       <div style="flex-grow: 1;">
-        <label>Фон (для некоторых макетов)</label>
+        <label>Фон</label>
         <select id="bgStyle">
           <option value="blur">Размытое фото</option>
-          <option value="dark">Тёмный графит</option>
-          <option value="clean">Светлый бетон</option>
+          <option value="dark">Тёмный</option>
+          <option value="clean">Светлый</option>
         </select>
       </div>
     </div>
   </div>
 
-  <!-- PREVIEWS -->
+  <!-- PREVIEWS (ORDERED) -->
   <div class="preview-grid" id="gridArea" style="display:none;">
     
     <div class="card"><div class="card-header"><span class="card-title">V1. Classic Hero</span><span class="badge">1 Фото</span></div><canvas id="c1" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c1')">Скачать</button></div>
     
-    <div class="card"><div class="card-header"><span class="card-title">V2. Smart Grid</span><span class="badge">1-4 Фото (Авто)</span></div><canvas id="c2" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c2')">Скачать</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V2. Smart Grid</span><span class="badge">1-4 Фото</span></div><canvas id="c2" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c2')">Скачать</button></div>
     
     <div class="card"><div class="card-header"><span class="card-title">V3. Big Bold</span><span class="badge">Крупный текст</span></div><canvas id="c3" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c3')">Скачать</button></div>
     
-    <div class="card"><div class="card-header"><span class="card-title">V4. Product Card</span><span class="badge">Карточка</span></div><canvas id="c4" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c4')">Скачать</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V4. Product Card (Fixed)</span><span class="badge">Карточка</span></div><canvas id="c4" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c4')">Скачать</button></div>
     
-    <div class="card"><div class="card-header"><span class="card-title">V9. Adaptive Gallery</span><span class="badge">Галерея (1-4)</span></div><canvas id="c9" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c9')">Скачать</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V9. Gallery (Fixed)</span><span class="badge">Галерея</span></div><canvas id="c9" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c9')">Скачать</button></div>
 
-    <div class="card"><div class="card-header"><span class="card-title">V11. Auto Catalog</span><span class="badge">Полоски (1-4)</span></div><canvas id="c11" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c11')">Скачать</button></div>
-
-    <!-- NEW YEAR SPECIALS -->
     <div class="card"><div class="card-header"><span class="card-title">V10. Classic New Year</span><span class="badge">Red & Snow</span></div><canvas id="c10" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c10')">Скачать</button></div>
 
-    <div class="card"><div class="card-header"><span class="card-title">V12. Golden Luxury</span><span class="badge">Золото (NEW)</span></div><canvas id="c12" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c12')">Скачать</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V11. Clean Catalog (Fixed)</span><span class="badge">Каталог</span></div><canvas id="c11" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c11')">Скачать</button></div>
 
-    <div class="card"><div class="card-header"><span class="card-title">V13. Neon Frost</span><span class="badge">Стекло (NEW)</span></div><canvas id="c13" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c13')">Скачать</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V12. Golden Luxury</span><span class="badge">Золото</span></div><canvas id="c12" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c12')">Скачать</button></div>
+
+    <div class="card"><div class="card-header"><span class="card-title">V13. Neon Frost</span><span class="badge">Стекло</span></div><canvas id="c13" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c13')">Скачать</button></div>
   </div>
 
   <button class="btn-generate" id="renderBtn">Создать макеты</button>
@@ -232,12 +233,15 @@
   tg.ready(); tg.expand();
   tg.setHeaderColor('#18181b'); tg.setBackgroundColor('#09090b');
 
+  // ALL LOGOS RESTORED
   const LOGO_URLS = {
     'none': null,
     'csg': 'https://pdbrn.github.io/csg-webapp/assets/logo_csg.png',
     'mstore': 'https://pdbrn.github.io/csg-webapp/assets/logo_mstore.png',
     'pss': 'https://pdbrn.github.io/csg-webapp/assets/logo_pss.png',
     'cm': 'https://pdbrn.github.io/csg-webapp/assets/logo_cm.png',
+    'polymers': 'https://pdbrn.github.io/csg-webapp/assets/logo_polymers.png',
+    'horeca': 'https://pdbrn.github.io/csg-webapp/assets/logo_horeca.png'
   };
 
   const W = 1080, H = 1920;
@@ -312,7 +316,6 @@
     ctx.restore();
   }
 
-  // --- NEW SMART GRID SYSTEM (Fixes 1-4 images) ---
   function drawSmartGrid(ctx, imgs, x, y, w, h, gap=0, r=0) {
      if(!imgs || imgs.length === 0) {
        ctx.fillStyle = '#222'; ctx.fillRect(x,y,w,h); return;
@@ -324,13 +327,11 @@
        drawImageCover(ctx, imgs[0], x, y, w, h, r);
      } 
      else if(count === 2) {
-       // Vertical Split
        const halfH = (h - gap)/2;
        drawImageCover(ctx, imgs[0], x, y, w, halfH, r);
        drawImageCover(ctx, imgs[1], x, y + halfH + gap, w, halfH, r);
      } 
      else if(count === 3) {
-       // 1 Big Top, 2 Small Bottom
        const bigH = h * 0.6;
        const smallH = h - bigH - gap;
        const smallW = (w - gap) / 2;
@@ -339,7 +340,6 @@
        drawImageCover(ctx, imgs[2], x + smallW + gap, y + bigH + gap, smallW, smallH, r);
      } 
      else if(count === 4) {
-       // 2x2 Grid
        const halfW = (w - gap)/2;
        const halfH = (h - gap)/2;
        drawImageCover(ctx, imgs[0], x, y, halfW, halfH, r);
@@ -361,7 +361,6 @@
     ctx.arcTo(x, tagH, x, tagH - r, r); ctx.closePath(); ctx.fill(); 
     ctx.shadowBlur = 0;
     
-    // Fit logo inside
     const pad = 25;
     const maxWidth = tagW - pad*2;
     const maxHeight = tagH - pad*2;
@@ -377,13 +376,12 @@
     else if (mode === 'blur' && state.images[0]) {
       ctx.drawImage(state.images[0], 0, 0, W, H);
       ctx.fillStyle = 'rgba(15,15,20,0.85)'; ctx.fillRect(0,0,W,H);
-      ctx.backdropFilter = "blur(20px)"; // Canvas support limited, simulation via fill
     } else { ctx.fillStyle = '#111'; ctx.fillRect(0,0,W,H); }
   }
 
   // --- RENDERERS ---
 
-  // V1: Classic Hero
+  // V1
   function renderV1(ctx) {
     drawBackground(ctx);
     if(state.images[0]) {
@@ -393,11 +391,7 @@
       ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
     }
     drawLogoBookmark(ctx, W/2);
-    
-    let y = H - 120; // Bottom Anchor
-    const pad = 60;
-    
-    // Button
+    let y = H - 120; const pad = 60;
     if (state.cta) {
       ctx.font = `700 40px ${FONT_INTER}`;
       const btnW = ctx.measureText(state.cta).width + 80;
@@ -405,39 +399,26 @@
       ctx.fillStyle = state.accent;
       ctx.beginPath(); ctx.roundRect(pad, y, btnW, 100, 20); ctx.fill();
       ctx.fillStyle = '#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(state.cta, pad+btnW/2, y+50);
-      y -= 50;
+      ctx.fillText(state.cta, pad+btnW/2, y+50); y -= 50;
     }
-    // Desc
     if(state.desc) {
       ctx.font = `500 42px ${FONT_INTER}`; ctx.fillStyle = '#d4d4d8'; ctx.textAlign='left';
-      wrapText(ctx, state.desc, W-(pad*2)).reverse().forEach(l => { y -= 60; ctx.fillText(l, pad, y); });
-      y -= 30;
+      wrapText(ctx, state.desc, W-(pad*2)).reverse().forEach(l => { y -= 60; ctx.fillText(l, pad, y); }); y -= 30;
     }
-    // Title
     if(state.title) {
       ctx.font = `800 85px ${FONT_MANROPE}`; ctx.fillStyle = '#fff';
       wrapText(ctx, state.title, W-(pad*2)).reverse().forEach(l => { y -= 95; ctx.fillText(l, pad, y); });
     }
   }
 
-  // V2: Smart Grid (Fixed margins & grid)
+  // V2
   function renderV2(ctx) {
     ctx.fillStyle = '#09090b'; ctx.fillRect(0,0,W,H);
-    const pad = 40;
-    const gridH = H * 0.55;
-    
-    // Use Smart Grid logic
+    const pad = 40; const gridH = H * 0.55;
     drawSmartGrid(ctx, state.images, pad, pad, W-pad*2, gridH, 15, 12);
-    
     drawLogoBookmark(ctx, W/2);
-    
-    // Content area
-    let ty = gridH + 100;
-    const maxW = W - 120; // 60px padding per side
-    
+    let ty = gridH + 100; const maxW = W - 120;
     ctx.textAlign = 'center'; ctx.textBaseline='top';
-    
     if(state.title) {
       ctx.font = `800 75px ${FONT_MANROPE}`; ctx.fillStyle='#fff';
       wrapText(ctx, state.title, maxW).forEach(l => { ctx.fillText(l, W/2, ty); ty+=85; });
@@ -454,34 +435,28 @@
     }
   }
 
-  // V3: Big Bold
+  // V3
   function renderV3(ctx) {
     if(state.images[0]) {
       drawImageCover(ctx, state.images[0], 0,0,W,H);
       ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0,0,W,H);
     } else { ctx.fillStyle='#111'; ctx.fillRect(0,0,W,H); }
-    
     drawLogoBookmark(ctx, W/2);
-    
     ctx.textAlign='center'; ctx.textBaseline='middle';
     let ty = H/2 - 80;
-    
     if(state.title) {
       ctx.font = `900 110px ${FONT_MANROPE}`; ctx.fillStyle='#fff';
       wrapText(ctx, state.title.toUpperCase(), W-80).forEach(l => { ctx.fillText(l, W/2, ty); ty+=120; });
     }
     ctx.fillStyle = state.accent; ctx.fillRect(W/2-60, ty, 120, 10); ty+=100;
-    
     if(state.desc) {
       ctx.font = `500 44px ${FONT_INTER}`; ctx.fillStyle='#ccc';
       wrapText(ctx, state.desc, W-160).forEach(l => { ctx.fillText(l, W/2, ty); ty+=60; });
     }
-    
     if(state.cta) {
       const btnY = H - 250;
       ctx.save(); ctx.translate(W/2, btnY); ctx.font=`700 40px ${FONT_INTER}`;
       const btnW = ctx.measureText(state.cta).width + 120;
-      // Slanted button
       ctx.transform(1,0,-0.2,1,0,0); 
       ctx.fillStyle=state.accent; ctx.fillRect(-btnW/2, -50, btnW, 100);
       ctx.setTransform(1,0,0,1,W/2,btnY); 
@@ -490,39 +465,50 @@
     }
   }
 
-  // V4: Product Card
+  // V4 FIXED: Solid background for text
   function renderV4(ctx) {
      drawBackground(ctx);
      const cX=60, cY=(H*0.15), cW=W-120, cH=H*0.7;
-     
-     ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=40;
      const isLight = document.getElementById('bgStyle').value === 'clean';
-     ctx.fillStyle = isLight ? '#fff' : '#18181b';
-     
+     const cardBg = isLight ? '#ffffff' : '#18181b';
+     const textColor = isLight ? '#000000' : '#ffffff';
+     const descColor = isLight ? '#555555' : '#a1a1aa';
+
+     ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=40;
+     ctx.fillStyle = cardBg;
      ctx.beginPath(); ctx.roundRect(cX, cY, cW, cH, 30); ctx.fill(); ctx.shadowBlur=0;
      ctx.save(); ctx.clip();
      
-     // Image logic
+     // 1. Image on top half
+     const imgH = cH * 0.55;
      if(state.images.length > 0) {
-        // Just show first image for card style
-        drawImageCover(ctx, state.images[0], cX, cY, cW, cH*0.55);
+        drawImageCover(ctx, state.images[0], cX, cY, cW, imgH);
+     } else {
+        ctx.fillStyle = '#333'; ctx.fillRect(cX, cY, cW, imgH);
      }
      
-     let ty = cY + cH*0.55 + 70;
-     const tx = cX + 60, tW = cW - 120;
-     
+     // 2. Solid color on bottom half (ensures text readability)
+     ctx.fillStyle = cardBg;
+     ctx.fillRect(cX, cY + imgH, cW, cH - imgH);
+
+     // 3. Text
+     let ty = cY + imgH + 60;
+     const tx = cX + 50, tW = cW - 100;
      ctx.textAlign='left'; ctx.textBaseline='top';
+     
      if(state.title) {
-       ctx.fillStyle = isLight ? '#000' : '#fff'; ctx.font = `800 55px ${FONT_MANROPE}`;
+       ctx.fillStyle = textColor; ctx.font = `800 55px ${FONT_MANROPE}`;
        wrapText(ctx, state.title, tW).forEach(l => { ctx.fillText(l, tx, ty); ty+=65; });
      }
      if(state.desc) {
-       ty+=20; ctx.fillStyle = isLight ? '#555' : '#a1a1aa'; ctx.font = `400 36px ${FONT_INTER}`;
+       ty+=20; ctx.fillStyle = descColor; ctx.font = `400 36px ${FONT_INTER}`;
        wrapText(ctx, state.desc, tW).slice(0,3).forEach(l => { ctx.fillText(l, tx, ty); ty+=48; });
      }
+     
+     // 4. Button
      if(state.cta) {
-       const btnY = cY + cH - 140;
-       ctx.fillStyle=state.accent; ctx.fillRect(tx, btnY, tW, 90);
+       const btnY = cY + cH - 130;
+       ctx.fillStyle=state.accent; ctx.beginPath(); ctx.roundRect(tx, btnY, tW, 90, 16); ctx.fill();
        ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
        ctx.font=`700 32px ${FONT_INTER}`; ctx.fillText(state.cta, tx+tW/2, btnY+45);
      }
@@ -530,19 +516,19 @@
      drawLogoBookmark(ctx, W/2);
   }
 
-  // V9: Adaptive Gallery (Fixed & Cleaned)
+  // V9 FIXED: Spacing and alignment
   function renderV9(ctx) {
     ctx.fillStyle='#09090b'; ctx.fillRect(0,0,W,H);
     const imgs = state.images;
-    const bigH = H * 0.50;
+    const bigH = H * 0.50; // 50% height
     const gap = 20;
     
-    // 1. Top Image
+    // Top Image
     if(imgs[0]) drawImageCover(ctx, imgs[0], 0, 0, W, bigH);
 
-    // 2. Bottom Strip (Adaptive)
+    // Bottom Strip (Reduced height to save space)
     const startY = bigH + gap;
-    const stripH = H * 0.18;
+    const stripH = H * 0.15; // Reduced from 0.18
     const remain = Math.min(imgs.length - 1, 3);
     
     if(remain > 0) {
@@ -551,26 +537,31 @@
           drawImageCover(ctx, imgs[i+1], gap + i*(w+gap), startY, w, stripH, 12);
        }
     } else {
-       // Decorative strip if no extra photos
        ctx.fillStyle='#18181b'; ctx.fillRect(gap, startY, W-gap*2, 10);
     }
     
     drawLogoBookmark(ctx, W/2);
     
-    let ty = startY + stripH + 80;
+    // Text Start Point
+    let ty = startY + stripH + 60;
     ctx.textAlign = 'center'; ctx.textBaseline='top';
     const maxW = W-120;
 
     if(state.title) {
-        ctx.fillStyle='#fff'; ctx.font=`800 80px ${FONT_MANROPE}`;
-        wrapText(ctx, state.title, maxW).forEach(l => { ctx.fillText(l, W/2, ty); ty+=90; });
+        ctx.fillStyle='#fff'; ctx.font=`800 75px ${FONT_MANROPE}`;
+        wrapText(ctx, state.title, maxW).forEach(l => { ctx.fillText(l, W/2, ty); ty+=85; });
     }
     if(state.desc) {
-        ty+=20; ctx.fillStyle='#a1a1aa'; ctx.font=`500 40px ${FONT_INTER}`;
-        wrapText(ctx, state.desc, maxW).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
+        ty+=20; ctx.fillStyle='#a1a1aa'; ctx.font=`500 38px ${FONT_INTER}`;
+        wrapText(ctx, state.desc, maxW).slice(0,3).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
     }
+    
+    // CTA Button
     if(state.cta) {
-        ty+=60;
+        ty+=50;
+        // Check if button goes off screen
+        if (ty + 110 > H) ty = H - 150; 
+        
         ctx.fillStyle=state.accent; 
         const btnW = ctx.measureText(state.cta).width + 120;
         ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 110, 55); ctx.fill();
@@ -579,21 +570,17 @@
     }
   }
 
-  // V10: New Year Red (Fixed Text)
+  // V10
   function renderV10(ctx) {
     const g = ctx.createLinearGradient(0,0,0,H);
     g.addColorStop(0, '#7f1d1d'); g.addColorStop(1, '#250505');
     ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-    
-    // Photo frame
     if(state.images[0]) {
       const p = 40;
       drawImageCover(ctx, state.images[0], p, 220, W-p*2, H*0.45, 20);
       ctx.strokeStyle = '#ef4444'; ctx.lineWidth=2; 
-      ctx.strokeRect(p+10, 230, W-p*2-20, H*0.45-20); // Inner red border
+      ctx.strokeRect(p+10, 230, W-p*2-20, H*0.45-20);
     }
-
-    // Snow
     ctx.fillStyle = '#fff';
     for(let i=0; i<80; i++) {
         const x = Math.random()*W, y = Math.random()*H, s = Math.random()*4;
@@ -601,13 +588,10 @@
     }
     ctx.globalAlpha = 1;
     drawLogoBookmark(ctx, W/2);
-
     let ty = H*0.5 + 280;
     ctx.textAlign='center'; ctx.textBaseline='top';
-    
     ctx.font = `italic 700 50px ${FONT_SERIF}`; ctx.fillStyle = '#fca5a5';
     ctx.fillText("✨ С Новым Годом! ✨", W/2, ty - 80);
-
     if(state.title) {
         ctx.fillStyle='#fff'; ctx.font=`700 85px ${FONT_SERIF}`;
         wrapText(ctx, state.title, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=95; });
@@ -617,55 +601,64 @@
         wrapText(ctx, state.desc, W-140).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
     }
     if(state.cta) {
-        ty+=60; 
-        const btnW = ctx.measureText(state.cta).width + 120;
+        ty+=60; const btnW = ctx.measureText(state.cta).width + 120;
         ctx.fillStyle='#fff'; ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 100, 16); ctx.fill();
         ctx.fillStyle='#b91c1c'; ctx.font=`700 36px ${FONT_INTER}`; ctx.textBaseline='middle';
         ctx.fillText(state.cta, W/2, ty+50);
     }
   }
 
-  // V11: Auto Catalog (Fixed Columns)
+  // V11 FIXED: Layout and Columns
   function renderV11(ctx) {
      ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
      
-     const count = Math.min(state.images.length, 4) || 1;
-     const colW = W / count;
-     const imgH = H * 0.72;
+     // 1. Calculate Columns
+     const count = Math.min(state.images.length, 4);
+     const safeCount = count > 0 ? count : 1;
+     const colW = W / safeCount;
+     const imgH = H * 0.70; // 70% height for images
      
-     for(let i=0; i<count; i++) {
-        drawImageCover(ctx, state.images[i], i*colW, 0, colW, imgH);
-        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(i*colW, 0, colW, imgH);
-        // Vertical lines
-        if(i > 0) { ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillRect(i*colW, 0, 2, imgH); }
+     // 2. Draw Images
+     if (count > 0) {
+       for(let i=0; i<count; i++) {
+          drawImageCover(ctx, state.images[i], i*colW, 0, colW, imgH);
+          // Darken slightly
+          ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(i*colW, 0, colW, imgH);
+          // Separator lines
+          if(i > 0) { ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.fillRect(i*colW, 0, 2, imgH); }
+       }
+     } else {
+       // Placeholder if no images
+       ctx.fillStyle = '#222'; ctx.fillRect(0,0,W,imgH);
      }
      
      drawLogoBookmark(ctx, W/2);
      
-     // Footer
-     const textY = imgH;
-     ctx.fillStyle = '#111'; ctx.fillRect(0, textY, W, H - textY);
-     ctx.fillStyle = state.accent; ctx.fillRect(0, textY, W, 8);
+     // 3. Footer Background (Solid)
+     ctx.fillStyle = '#111'; ctx.fillRect(0, imgH, W, H - imgH);
+     ctx.fillStyle = state.accent; ctx.fillRect(0, imgH, W, 8); // Accent strip
      
-     let ty = textY + 90;
+     // 4. Content
+     let ty = imgH + 80;
      ctx.textAlign = 'center'; ctx.textBaseline='top';
      
      if(state.title) {
-        ctx.fillStyle='#fff'; ctx.font=`800 75px ${FONT_MANROPE}`;
-        wrapText(ctx, state.title, W-80).forEach(l => { ctx.fillText(l, W/2, ty); ty+=85; });
+        ctx.fillStyle='#fff'; ctx.font=`800 70px ${FONT_MANROPE}`;
+        wrapText(ctx, state.title, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=80; });
      }
      
      ty += 20;
      if(state.desc) {
-        ctx.fillStyle='#999'; ctx.font=`500 36px ${FONT_INTER}`;
+        ctx.fillStyle='#a1a1aa'; ctx.font=`500 36px ${FONT_INTER}`;
         wrapText(ctx, state.desc, W-100).slice(0,2).forEach(l => { ctx.fillText(l, W/2, ty); ty+=45; });
      }
      
      if(state.cta) {
-        ty += 60;
+        ty += 50;
         const btnW = ctx.measureText(state.cta).width + 100;
+        // Outline button
         ctx.strokeStyle = '#444'; ctx.lineWidth=3;
-        ctx.strokeRect(W/2 - btnW/2, ty, btnW, 90);
+        ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 90, 12); ctx.stroke();
         
         ctx.fillStyle = state.accent; ctx.font=`700 34px ${FONT_INTER}`; 
         ctx.textBaseline='middle';
@@ -673,36 +666,23 @@
      }
   }
 
-  // --- NEW TEMPLATE 1: V12 GOLD LUXURY ---
+  // V12
   function renderV12(ctx) {
-    // Background: Dark Texture
     ctx.fillStyle = '#0c0a09'; ctx.fillRect(0,0,W,H);
-    
-    // Circular Image cutout
     if(state.images[0]) {
       const cx = W/2, cy = H*0.4, r = 400;
-      ctx.save();
-      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
+      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
       drawImageCover(ctx, state.images[0], cx-r, cy-r, r*2, r*2);
       ctx.restore();
-      
-      // Gold Border
       ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 4;
       ctx.beginPath(); ctx.arc(cx, cy, r+10, 0, Math.PI*2); ctx.stroke();
       ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, r+25, 0, Math.PI*2); ctx.stroke();
     }
-    
     drawLogoBookmark(ctx, W/2);
-
-    // Ornament corners
     ctx.fillStyle = '#d4af37';
-    // Dots decoration
     for(let x=40; x<W; x+=40) { ctx.fillRect(x, H-120, 2, 2); ctx.fillRect(x, 120, 2, 2); }
-
     let ty = H * 0.4 + 450;
     ctx.textAlign='center'; ctx.textBaseline='top';
-    
-    // Title
     if(state.title) {
       ctx.font = `700 100px ${FONT_GOLD}`; 
       const grad = ctx.createLinearGradient(0, ty, W, ty);
@@ -710,84 +690,55 @@
       ctx.fillStyle = grad;
       wrapText(ctx, state.title.toUpperCase(), W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=110; });
     }
-    
-    // Divider
     ctx.fillStyle = '#d4af37'; ctx.fillRect(W/2-50, ty+10, 100, 2); ty+=60;
-    
-    // Desc
     if(state.desc) {
       ctx.font = `400 42px ${FONT_SERIF}`; ctx.fillStyle = '#a8a29e';
       wrapText(ctx, state.desc, W-140).forEach(l => { ctx.fillText(l, W/2, ty); ty+=55; });
     }
-    
-    // CTA
     if(state.cta) {
-      ty += 80;
-      ctx.font = `700 40px ${FONT_MANROPE}`; ctx.fillStyle = '#d4af37';
+      ty += 80; ctx.font = `700 40px ${FONT_MANROPE}`; ctx.fillStyle = '#d4af37';
       ctx.fillText(state.cta, W/2, ty);
     }
   }
 
-  // --- NEW TEMPLATE 2: V13 NEON FROST ---
+  // V13
   function renderV13(ctx) {
-    // Bg
     if(state.images[0]) {
        drawImageCover(ctx, state.images[0], 0,0,W,H);
        ctx.fillStyle = 'rgba(10,15,30, 0.8)'; ctx.fillRect(0,0,W,H);
-    } else {
-       ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,W,H);
-    }
-    
-    // Glass Card
-    const cardX = 60, cardW = W-120, cardH = H-300;
-    const cardY = (H - cardH)/2;
-    
+    } else { ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,W,H); }
+    const cardX = 60, cardW = W-120, cardH = H-300; const cardY = (H - cardH)/2;
     ctx.save();
-    ctx.fillStyle = 'rgba(255,255,255,0.05)';
-    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 40); 
-    ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 40); ctx.fill(); ctx.stroke();
     ctx.restore();
-    
-    // Inner Image
     if(state.images[0]) {
       drawImageCover(ctx, state.images[0], cardX+20, cardY+20, cardW-40, cardH*0.5, 30);
     }
-
-    // Neon elements
-    ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 20;
-    ctx.fillStyle = '#38bdf8';
+    ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 20; ctx.fillStyle = '#38bdf8';
     ctx.beginPath(); ctx.arc(cardX+cardW-60, cardY+cardH*0.5, 40, 0, Math.PI*2); ctx.fill();
     ctx.shadowBlur = 0; ctx.fillStyle = '#fff';
     ctx.font = '40px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('❄️', cardX+cardW-60, cardY+cardH*0.5 + 2);
-
     let ty = cardY + cardH*0.5 + 80;
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     const tx = cardX + 50; const tw = cardW - 100;
-
     if(state.title) {
        ctx.fillStyle = '#fff'; ctx.font = `800 70px ${FONT_MANROPE}`;
        wrapText(ctx, state.title, tw).forEach(l => { ctx.fillText(l, tx, ty); ty+=80; });
     }
-    
     if(state.desc) {
        ty+=20; ctx.fillStyle = '#cbd5e1'; ctx.font = `500 36px ${FONT_INTER}`;
        wrapText(ctx, state.desc, tw).forEach(l => { ctx.fillText(l, tx, ty); ty+=45; });
     }
-    
     if(state.cta) {
        const by = cardY + cardH - 120;
        ctx.shadowColor = state.accent; ctx.shadowBlur = 30;
        ctx.fillStyle = state.accent; ctx.beginPath(); ctx.roundRect(tx, by, tw, 80, 20); ctx.fill();
        ctx.shadowBlur = 0;
-       
        ctx.fillStyle = '#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
-       ctx.font = `700 32px ${FONT_INTER}`;
-       ctx.fillText(state.cta, tx + tw/2, by + 40);
+       ctx.font = `700 32px ${FONT_INTER}`; ctx.fillText(state.cta, tx + tw/2, by + 40);
     }
-    
     drawLogoBookmark(ctx, W/2);
   }
 
@@ -809,44 +760,50 @@
     
     await document.fonts.ready;
 
+    // Render in ORDER
     renderV1(getCtx('c1'));
     renderV2(getCtx('c2'));
     renderV3(getCtx('c3'));
     renderV4(getCtx('c4'));
     renderV9(getCtx('c9'));
-    renderV11(getCtx('c11'));
     renderV10(getCtx('c10'));
+    renderV11(getCtx('c11'));
     renderV12(getCtx('c12'));
     renderV13(getCtx('c13'));
     
     document.getElementById('gridArea').style.display = 'flex';
     btn.innerText = oldText;
-    // Scroll a bit
     setTimeout(() => document.querySelector('.preview-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
   async function shareCanvas(id) {
     const canvas = document.getElementById(id);
     const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-    const file = new File([blob], "story_design.png", { type: "image/png" });
+    const file = new File([blob], `story_${id}.png`, { type: "image/png" });
+    
     if (navigator.share && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file] }); } catch (err) {}
+      try { 
+        await navigator.share({ files: [file] }); 
+      } catch (err) { console.log('Share closed'); }
     } else {
-      const a = document.createElement('a');
-      a.download = `story_${id}.png`; a.href = canvas.toDataURL(); a.click();
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL("image/png");
+      link.download = `story_${id}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   }
 
   document.getElementById('renderBtn').addEventListener('click', generate);
 
-  // Initial blank state
   window.onload = () => {
     document.querySelectorAll('canvas').forEach(c => {
        const ctx = c.getContext('2d');
        ctx.fillStyle='#111'; ctx.fillRect(0,0,W,H);
        ctx.fillStyle='#333'; ctx.font=`700 40px ${FONT_INTER}`;
        ctx.textAlign='center'; ctx.textBaseline='middle';
-       ctx.fillText("Preview Area", W/2, H/2);
+       ctx.fillText("Preview", W/2, H/2);
     });
   };
 </script>
