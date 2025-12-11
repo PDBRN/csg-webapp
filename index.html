@@ -39,7 +39,7 @@
       padding-bottom: 120px;
     }
 
-    /* Sidebar / Settings */
+    /* Sidebar */
     .sidebar {
       background: var(--panel);
       padding: 20px;
@@ -143,7 +143,7 @@
   <div class="sidebar">
     <div class="header">
       <h1>CSG Metal Pro</h1>
-      <p>Конструктор сторис v3.3 (Fixes)</p>
+      <p>Конструктор сторис v4.0 (Final)</p>
     </div>
 
     <!-- 1. PHOTOS -->
@@ -222,7 +222,7 @@
 
     <div class="card"><div class="card-header"><span class="card-title">V10. Happy New Year</span><span class="badge">Снег ❄️</span></div><canvas id="c10" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c10')">Сохранить</button></div>
 
-    <div class="card"><div class="card-header"><span class="card-title">V11. 4 Strips</span><span class="badge">Каталог</span></div><canvas id="c11" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c11')">Сохранить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V11. 4 Strips Catalog</span><span class="badge">Каталог</span></div><canvas id="c11" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c11')">Сохранить</button></div>
   </div>
 
   <button class="btn-generate" id="renderBtn">Генерировать</button>
@@ -247,7 +247,7 @@
   const W = 1080, H = 1920;
   const FONT_MANROPE = "'Manrope', sans-serif";
   const FONT_INTER = "'Inter', sans-serif";
-  const FONT_SERIF = "'Merriweather', serif"; // For Christmas
+  const FONT_SERIF = "'Merriweather', serif"; 
 
   const state = {
     images: [],
@@ -384,7 +384,7 @@
       drawImageCover(ctx, imgs[1], pad, pad+mainH+gap, subW, areaH-mainH-gap);
       drawImageCover(ctx, imgs[2], pad+subW+gap, pad+mainH+gap, subW, areaH-mainH-gap);
     } else if(count === 4) {
-      // 2x2 Grid Fix
+      // 2x2 Grid Correct
       const w = (W - pad*2 - gap)/2;
       const h = (areaH - gap)/2;
       drawImageCover(ctx, imgs[0], pad, pad, w, h);
@@ -395,9 +395,9 @@
     
     drawLogoBookmark(ctx, W/2);
     
-    // Fix: Position text below images, not centered in void
+    // Text aligned relative to bottom of images
     ctx.textAlign = 'center'; ctx.textBaseline='top';
-    let ty = areaH + 60;
+    let ty = areaH + 80;
     
     if(state.title) {
       ctx.font = `800 75px ${FONT_MANROPE}`; ctx.fillStyle='#fff';
@@ -410,7 +410,8 @@
     if(state.cta) {
       ty+=60; ctx.font=`700 42px ${FONT_INTER}`; ctx.fillStyle=state.accent;
       ctx.fillText(state.cta, W/2, ty);
-      ctx.fillRect(W/2 - 100, ty+50, 200, 4);
+      const btnW = ctx.measureText(state.cta).width;
+      ctx.fillRect(W/2 - btnW/2, ty+50, btnW, 4);
     }
   }
 
@@ -588,7 +589,7 @@
     }
   }
 
-  // --- V9: ADAPTIVE GALLERY (Fix Logic) ---
+  // --- V9: ADAPTIVE GALLERY (Fixed) ---
   function renderV9(ctx) {
     ctx.fillStyle='#09090b'; ctx.fillRect(0,0,W,H);
     const imgs = state.images;
@@ -598,20 +599,20 @@
     // Draw Top Image
     if(imgs[0]) drawImageCover(ctx, imgs[0], 0, 0, W, bigH);
 
-    // Draw Bottom Strip
     const startY = bigH + gap;
     const stripH = H * 0.18;
     
-    const count = Math.max(imgs.length - 1, 1); 
-    const w = (W - gap * (count + 1)) / count;
+    // How many images at bottom? (max 3)
+    const count = Math.min(imgs.length - 1, 3);
     
-    // If only 1 image total, draw placeholders or nothing
-    if(imgs.length === 1) {
-       ctx.fillStyle='#18181b'; ctx.fillRect(gap, startY, W-gap*2, 10);
-    } else {
+    if(count > 0) {
+       const w = (W - gap * (count + 1)) / count;
        for(let i=0; i<count; i++) {
-          if(imgs[i+1]) drawImageCover(ctx, imgs[i+1], gap + i*(w+gap), startY, w, stripH, 12);
+          drawImageCover(ctx, imgs[i+1], gap + i*(w+gap), startY, w, stripH, 12);
        }
+    } else {
+       // Placeholder strip if single image
+       ctx.fillStyle='#18181b'; ctx.fillRect(gap, startY, W-gap*2, 10);
     }
     
     drawLogoBookmark(ctx, W/2);
@@ -675,7 +676,6 @@
     
     if(state.cta) {
         ty+=50; ctx.fillStyle = '#fff'; 
-        // Fix: Increased button width padding
         const btnW = ctx.measureText(state.cta).width + 160;
         ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 100, 10); ctx.fill();
         ctx.strokeStyle=state.accent; ctx.lineWidth=4; ctx.strokeRect(W/2 - btnW/2 + 5, ty+5, btnW-10, 90);
@@ -685,27 +685,25 @@
     }
   }
 
-  // --- V11: 4-STRIPS (Fixed Layout & Text Overlap) ---
+  // --- V11: 4-STRIPS (Fixed: Solid Footer) ---
   function renderV11(ctx) {
      ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
      
-     // Images take 70% height to leave room for text
+     // Images take 75% height
      const colW = W / 4;
-     const imgH = H * 0.70;
+     const imgH = H * 0.75;
      
      state.images.slice(0,4).forEach((img, i) => {
         drawImageCover(ctx, img, i*colW, 0, colW, imgH);
-        // Gradient overlay at bottom of images
-        const g = ctx.createLinearGradient(0, imgH - 200, 0, imgH);
-        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, '#000');
-        ctx.fillStyle = g; ctx.fillRect(i*colW, imgH - 200, colW, 200);
+        // Dimming
+        ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(i*colW, 0, colW, imgH);
      });
      
      drawLogoBookmark(ctx, W/2);
      
-     // Text Area (Solid Black)
+     // Solid Footer Area
      const textY = imgH;
-     ctx.fillStyle = '#000'; ctx.fillRect(0, textY, W, H - textY);
+     ctx.fillStyle = '#111'; ctx.fillRect(0, textY, W, H - textY);
      ctx.fillStyle = state.accent; ctx.fillRect(0, textY, W, 6);
      
      let ty = textY + 80;
