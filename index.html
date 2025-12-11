@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-  <title>CSG Metal Pro</title>
+  <title>CSG Metal Pro 2.0</title>
   
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;700;800&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;700;800&family=Merriweather:wght@400;700;900&family=Cormorant+Garamond:wght@700&display=swap" rel="stylesheet">
 
   <style>
     :root {
@@ -74,7 +74,9 @@
       text-align: center;
       background: rgba(255,255,255,0.02);
       cursor: pointer;
+      transition: 0.2s;
     }
+    .file-drop:active { background: rgba(255,255,255,0.05); }
     .file-drop span { font-size: 13px; color: var(--primary); font-weight: 500; }
     input[type="file"] { display: none; }
 
@@ -122,18 +124,20 @@
       cursor: pointer;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
       z-index: 100; text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    .btn-generate:active { transform: scale(0.96); }
+    .btn-generate:active { transform: scale(0.98); }
 
     /* Preview Grid */
-    .preview-grid { padding: 20px; display: flex; flex-direction: column; gap: 30px; }
+    .preview-grid { padding: 20px; display: flex; flex-direction: column; gap: 40px; }
     .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 10px; }
-    .card-header { display: flex; justify-content: space-between; margin-bottom: 10px; padding: 0 4px; }
-    .card-title { font-size: 12px; font-weight: 600; color: #fff; }
-    .badge { font-size: 10px; background: #27272a; padding: 2px 6px; border-radius: 4px; color: #888; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px; }
+    .card-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .badge { font-size: 10px; background: #27272a; padding: 4px 8px; border-radius: 6px; color: #aaa; text-transform: uppercase; font-weight: 600; }
     
-    canvas { width: 100%; height: auto; border-radius: 8px; display: block; background: #000; }
-    .btn-share { margin-top: 10px; background: #333; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 13px; }
+    canvas { width: 100%; height: auto; border-radius: 8px; display: block; background: #000; margin-bottom: 12px; }
+    .btn-share { background: #3f3f46; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; }
+    .btn-share:hover { background: #52525b; }
   </style>
 </head>
 <body>
@@ -143,14 +147,14 @@
   <div class="sidebar">
     <div class="header">
       <h1>CSG Metal Pro</h1>
-      <p>Конструктор сторис v4.0 (Final)</p>
+      <p>Конструктор сторис v5.0 (New Year Update)</p>
     </div>
 
     <!-- 1. PHOTOS -->
     <div class="control-group">
-      <label>1. Фотографии</label>
+      <label>1. Фотографии (до 4 шт)</label>
       <div class="file-drop" onclick="document.getElementById('imgInput').click()">
-        <span id="fileLabel">📸 Выбрать фото (1-4 шт)</span>
+        <span id="fileLabel">📸 Нажми, чтобы выбрать фото</span>
         <input type="file" id="imgInput" multiple accept="image/*" onchange="updateFileLabel(this)">
       </div>
     </div>
@@ -159,40 +163,38 @@
     <div class="control-group">
       <label>2. Логотип</label>
       <div class="logo-grid" id="logoContainer">
-        <button class="logo-btn active" onclick="selectLogo(this, 'none')">Без лого</button>
+        <button class="logo-btn active" onclick="selectLogo(this, 'none')">Нет</button>
         <button class="logo-btn" onclick="selectLogo(this, 'csg')">ЦСГ</button>
         <button class="logo-btn" onclick="selectLogo(this, 'mstore')">M-Store</button>
         <button class="logo-btn" onclick="selectLogo(this, 'pss')">ПСС</button>
         <button class="logo-btn" onclick="selectLogo(this, 'cm')">ЦМ</button>
-        <button class="logo-btn" onclick="selectLogo(this, 'polymers')">Полимеры</button>
-        <button class="logo-btn" onclick="selectLogo(this, 'horeca')">Хорека</button>
-        <button class="logo-btn" onclick="selectLogo(this, 'custom')">Загрузить...</button>
+        <button class="logo-btn" onclick="selectLogo(this, 'custom')">Свой...</button>
       </div>
       <input type="file" id="customLogoInput" accept="image/*" style="display:none" onchange="handleCustomLogo(this)">
     </div>
 
-    <!-- 3. SPLIT TEXT -->
+    <!-- 3. TEXT -->
     <div class="control-group">
-      <label>3. Текстовый блок</label>
-      <input type="text" id="txtTitle" placeholder="Заголовок" value="Арматура А500С">
-      <textarea id="txtDesc" placeholder="Описание">В наличии все диаметры. Резка в размер. Доставка в день заказа.</textarea>
-      <input type="text" id="txtBtn" placeholder="Текст кнопки" value="Рассчитать стоимость 🔥">
+      <label>3. Контент</label>
+      <input type="text" id="txtTitle" placeholder="Заголовок (например: Арматура А500)" value="Новогодняя распродажа">
+      <textarea id="txtDesc" placeholder="Описание (2-3 строки)">Скидки до 20% на весь ассортимент металлопроката. Успейте заказать до 31 декабря!</textarea>
+      <input type="text" id="txtBtn" placeholder="Текст на кнопке" value="Получить прайс 🎄">
     </div>
 
     <!-- 4. STYLE -->
     <div class="row control-group">
       <div>
-        <label>Акцент</label>
+        <label>Цвет</label>
         <div class="color-wrapper">
           <input type="color" id="accentColor" value="#f59e0b">
         </div>
       </div>
       <div style="flex-grow: 1;">
-        <label>Фон</label>
+        <label>Фон (для некоторых макетов)</label>
         <select id="bgStyle">
-          <option value="blur">Blur (Размытие)</option>
-          <option value="dark">Тёмный (Склад)</option>
-          <option value="clean">Светлый (Бетон)</option>
+          <option value="blur">Размытое фото</option>
+          <option value="dark">Тёмный графит</option>
+          <option value="clean">Светлый бетон</option>
         </select>
       </div>
     </div>
@@ -201,31 +203,27 @@
   <!-- PREVIEWS -->
   <div class="preview-grid" id="gridArea" style="display:none;">
     
-    <div class="card"><div class="card-header"><span class="card-title">V1. Classic Hero</span></div><canvas id="c1" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c1')">Сохранить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V1. Classic Hero</span><span class="badge">1 Фото</span></div><canvas id="c1" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c1')">Скачать</button></div>
     
-    <div class="card"><div class="card-header"><span class="card-title">V2. Grid Collage</span><span class="badge">Universal</span></div><canvas id="c2" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c2')">Сохранить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V2. Smart Grid</span><span class="badge">1-4 Фото (Авто)</span></div><canvas id="c2" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c2')">Скачать</button></div>
     
-    <div class="card"><div class="card-header"><span class="card-title">V3. Big Bold</span></div><canvas id="c3" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c3')">Сохранить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V3. Big Bold</span><span class="badge">Крупный текст</span></div><canvas id="c3" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c3')">Скачать</button></div>
     
-    <div class="card"><div class="card-header"><span class="card-title">V4. Product Card</span></div><canvas id="c4" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c4')">Сохранить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V4. Product Card</span><span class="badge">Карточка</span></div><canvas id="c4" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c4')">Скачать</button></div>
     
-    <div class="card"><div class="card-header"><span class="card-title">V5. Industrial</span><span class="badge">Split</span></div><canvas id="c5" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c5')">Сохранить</button></div>
-    
-    <div class="card"><div class="card-header"><span class="card-title">V6. Hot Sale</span></div><canvas id="c6" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c6')">Сохранить</button></div>
-    
-    <div class="card"><div class="card-header"><span class="card-title">V7. Geometric</span></div><canvas id="c7" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c7')">Сохранить</button></div>
-    
-    <div class="card"><div class="card-header"><span class="card-title">V8. Frame</span></div><canvas id="c8" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c8')">Сохранить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V9. Adaptive Gallery</span><span class="badge">Галерея (1-4)</span></div><canvas id="c9" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c9')">Скачать</button></div>
 
-    <!-- NEW TEMPLATES -->
-    <div class="card"><div class="card-header"><span class="card-title">V9. Gallery (Adaptive)</span><span class="badge">1-4 Фото</span></div><canvas id="c9" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c9')">Сохранить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V11. Auto Catalog</span><span class="badge">Полоски (1-4)</span></div><canvas id="c11" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c11')">Скачать</button></div>
 
-    <div class="card"><div class="card-header"><span class="card-title">V10. Happy New Year</span><span class="badge">Снег ❄️</span></div><canvas id="c10" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c10')">Сохранить</button></div>
+    <!-- NEW YEAR SPECIALS -->
+    <div class="card"><div class="card-header"><span class="card-title">V10. Classic New Year</span><span class="badge">Red & Snow</span></div><canvas id="c10" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c10')">Скачать</button></div>
 
-    <div class="card"><div class="card-header"><span class="card-title">V11. 4 Strips Catalog</span><span class="badge">Каталог</span></div><canvas id="c11" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c11')">Сохранить</button></div>
+    <div class="card"><div class="card-header"><span class="card-title">V12. Golden Luxury</span><span class="badge">Золото (NEW)</span></div><canvas id="c12" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c12')">Скачать</button></div>
+
+    <div class="card"><div class="card-header"><span class="card-title">V13. Neon Frost</span><span class="badge">Стекло (NEW)</span></div><canvas id="c13" width="1080" height="1920"></canvas><button class="btn-share" onclick="shareCanvas('c13')">Скачать</button></div>
   </div>
 
-  <button class="btn-generate" id="renderBtn">Генерировать</button>
+  <button class="btn-generate" id="renderBtn">Создать макеты</button>
 </div>
 
 <script>
@@ -240,14 +238,13 @@
     'mstore': 'https://pdbrn.github.io/csg-webapp/assets/logo_mstore.png',
     'pss': 'https://pdbrn.github.io/csg-webapp/assets/logo_pss.png',
     'cm': 'https://pdbrn.github.io/csg-webapp/assets/logo_cm.png',
-    'polymers': 'https://pdbrn.github.io/csg-webapp/assets/logo_polymers.png',
-    'horeca': 'https://pdbrn.github.io/csg-webapp/assets/logo_horeca.png'
   };
 
   const W = 1080, H = 1920;
   const FONT_MANROPE = "'Manrope', sans-serif";
   const FONT_INTER = "'Inter', sans-serif";
-  const FONT_SERIF = "'Merriweather', serif"; 
+  const FONT_SERIF = "'Merriweather', serif";
+  const FONT_GOLD = "'Cormorant Garamond', serif";
 
   const state = {
     images: [],
@@ -258,7 +255,7 @@
   // --- UI HANDLERS ---
   function updateFileLabel(input) {
     document.getElementById('fileLabel').innerText = input.files.length 
-      ? `Файлов: ${input.files.length}` : "📸 Выбрать фото (1-4 шт)";
+      ? `Выбрано файлов: ${input.files.length}` : "📸 Нажми, чтобы выбрать фото";
   }
 
   async function selectLogo(btn, key) {
@@ -271,24 +268,26 @@
   async function handleCustomLogo(input) {
     if(input.files && input.files[0]) {
       state.logo = await loadImage(URL.createObjectURL(input.files[0]));
-      document.querySelector('.logo-btn[onclick*="custom"]').innerText = "Загружено ✅";
+      document.querySelector('.logo-btn[onclick*="custom"]').innerText = "Загружено";
       document.querySelector('.logo-btn[onclick*="custom"]').classList.add('active');
     }
   }
 
-  // --- HELPERS ---
+  // --- CORE DRAWING HELPERS ---
   function getCtx(id) {
     const c = document.getElementById(id);
     const ctx = c.getContext('2d', { alpha: false });
     ctx.filter = 'none'; ctx.globalAlpha = 1; ctx.setTransform(1, 0, 0, 1, 0, 0); 
     return ctx;
   }
+  
   function loadImage(src) {
     return new Promise((r) => {
       const img = new Image(); img.crossOrigin = "anonymous";
       img.onload = () => r(img); img.onerror = () => r(null); img.src = src;
     });
   }
+
   function wrapText(ctx, text, maxWidth) {
     if(!text) return [];
     const words = text.split(' ');
@@ -301,166 +300,225 @@
     lines.push(currentLine);
     return lines;
   }
+
   function drawImageCover(ctx, img, x, y, w, h, r=0) {
     if (!img) return;
     ctx.save();
     if (r > 0) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.clip(); }
     const scale = Math.max(w / img.width, h / img.height);
-    ctx.drawImage(img, (img.width*scale-w)/-2, (img.height*scale-h)/-2, img.width*scale, img.height*scale);
+    const tx = x + (w - img.width * scale) / 2;
+    const ty = y + (h - img.height * scale) / 2;
+    ctx.drawImage(img, tx, ty, img.width * scale, img.height * scale);
     ctx.restore();
   }
+
+  // --- NEW SMART GRID SYSTEM (Fixes 1-4 images) ---
+  function drawSmartGrid(ctx, imgs, x, y, w, h, gap=0, r=0) {
+     if(!imgs || imgs.length === 0) {
+       ctx.fillStyle = '#222'; ctx.fillRect(x,y,w,h); return;
+     }
+     
+     const count = Math.min(imgs.length, 4);
+
+     if(count === 1) {
+       drawImageCover(ctx, imgs[0], x, y, w, h, r);
+     } 
+     else if(count === 2) {
+       // Vertical Split
+       const halfH = (h - gap)/2;
+       drawImageCover(ctx, imgs[0], x, y, w, halfH, r);
+       drawImageCover(ctx, imgs[1], x, y + halfH + gap, w, halfH, r);
+     } 
+     else if(count === 3) {
+       // 1 Big Top, 2 Small Bottom
+       const bigH = h * 0.6;
+       const smallH = h - bigH - gap;
+       const smallW = (w - gap) / 2;
+       drawImageCover(ctx, imgs[0], x, y, w, bigH, r);
+       drawImageCover(ctx, imgs[1], x, y + bigH + gap, smallW, smallH, r);
+       drawImageCover(ctx, imgs[2], x + smallW + gap, y + bigH + gap, smallW, smallH, r);
+     } 
+     else if(count === 4) {
+       // 2x2 Grid
+       const halfW = (w - gap)/2;
+       const halfH = (h - gap)/2;
+       drawImageCover(ctx, imgs[0], x, y, halfW, halfH, r);
+       drawImageCover(ctx, imgs[1], x + halfW + gap, y, halfW, halfH, r);
+       drawImageCover(ctx, imgs[2], x, y + halfH + gap, halfW, halfH, r);
+       drawImageCover(ctx, imgs[3], x + halfW + gap, y + halfH + gap, halfW, halfH, r);
+     }
+  }
+
   function drawLogoBookmark(ctx, xCenter) {
     if (!state.logo) return;
     const tagW = 200, tagH = 140, r = 20;
     const x = xCenter - tagW/2;
     ctx.save();
-    ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 20;
+    ctx.fillStyle = '#ffffff'; 
+    ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 20;
     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + tagW, 0); ctx.lineTo(x + tagW, tagH - r);
     ctx.arcTo(x + tagW, tagH, x + tagW - r, tagH, r); ctx.lineTo(x + r, tagH);
-    ctx.arcTo(x, tagH, x, tagH - r, r); ctx.closePath(); ctx.fill(); ctx.shadowBlur = 0;
-    const pad = 20;
-    const scale = Math.min((tagW-pad*2)/state.logo.width, (tagH-pad*2)/state.logo.height);
+    ctx.arcTo(x, tagH, x, tagH - r, r); ctx.closePath(); ctx.fill(); 
+    ctx.shadowBlur = 0;
+    
+    // Fit logo inside
+    const pad = 25;
+    const maxWidth = tagW - pad*2;
+    const maxHeight = tagH - pad*2;
+    const scale = Math.min(maxWidth/state.logo.width, maxHeight/state.logo.height);
     const fw = state.logo.width * scale, fh = state.logo.height * scale;
     ctx.drawImage(state.logo, x+(tagW-fw)/2, (tagH-fh)/2, fw, fh);
     ctx.restore();
   }
+
   function drawBackground(ctx) {
     const mode = document.getElementById('bgStyle').value;
     if (mode === 'clean') { ctx.fillStyle = '#e5e7eb'; ctx.fillRect(0,0,W,H); }
     else if (mode === 'blur' && state.images[0]) {
       ctx.drawImage(state.images[0], 0, 0, W, H);
-      ctx.fillStyle = 'rgba(10,10,12,0.85)'; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,W,H); 
+      ctx.fillStyle = 'rgba(15,15,20,0.85)'; ctx.fillRect(0,0,W,H);
+      ctx.backdropFilter = "blur(20px)"; // Canvas support limited, simulation via fill
     } else { ctx.fillStyle = '#111'; ctx.fillRect(0,0,W,H); }
   }
 
   // --- RENDERERS ---
 
+  // V1: Classic Hero
   function renderV1(ctx) {
     drawBackground(ctx);
     if(state.images[0]) {
       drawImageCover(ctx, state.images[0], 0, 0, W, H);
       const g = ctx.createLinearGradient(0, H/2, 0, H);
-      g.addColorStop(0, 'transparent'); g.addColorStop(1, '#000');
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, '#000');
       ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
     }
     drawLogoBookmark(ctx, W/2);
-    let y = H - 100;
+    
+    let y = H - 120; // Bottom Anchor
+    const pad = 60;
+    
+    // Button
     if (state.cta) {
       ctx.font = `700 40px ${FONT_INTER}`;
       const btnW = ctx.measureText(state.cta).width + 80;
-      y -= 120;
+      y -= 100;
       ctx.fillStyle = state.accent;
-      ctx.beginPath(); ctx.roundRect(60, y, btnW, 100, 16); ctx.fill();
+      ctx.beginPath(); ctx.roundRect(pad, y, btnW, 100, 20); ctx.fill();
       ctx.fillStyle = '#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(state.cta, 60+btnW/2, y+50); y -= 40;
+      ctx.fillText(state.cta, pad+btnW/2, y+50);
+      y -= 50;
     }
+    // Desc
     if(state.desc) {
       ctx.font = `500 42px ${FONT_INTER}`; ctx.fillStyle = '#d4d4d8'; ctx.textAlign='left';
-      wrapText(ctx, state.desc, W-120).reverse().forEach(l => { y -= 55; ctx.fillText(l, 60, y); });
+      wrapText(ctx, state.desc, W-(pad*2)).reverse().forEach(l => { y -= 60; ctx.fillText(l, pad, y); });
       y -= 30;
     }
+    // Title
     if(state.title) {
-      ctx.font = `800 90px ${FONT_MANROPE}`; ctx.fillStyle = '#fff';
-      wrapText(ctx, state.title, W-120).reverse().forEach(l => { y -= 100; ctx.fillText(l, 60, y); });
+      ctx.font = `800 85px ${FONT_MANROPE}`; ctx.fillStyle = '#fff';
+      wrapText(ctx, state.title, W-(pad*2)).reverse().forEach(l => { y -= 95; ctx.fillText(l, pad, y); });
     }
   }
 
+  // V2: Smart Grid (Fixed margins & grid)
   function renderV2(ctx) {
-    ctx.fillStyle = '#111'; ctx.fillRect(0,0,W,H);
-    const pad=40, gap=20, areaH=H*0.55;
-    const imgs = state.images;
-    const count = Math.min(imgs.length, 4);
-
-    if(count === 1) drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, areaH);
-    else if(count === 2) {
-      const h = (areaH-gap)/2;
-      drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, h);
-      drawImageCover(ctx, imgs[1], pad, pad+h+gap, W-pad*2, h);
-    } else if(count === 3) {
-      const mainH = areaH * 0.6;
-      drawImageCover(ctx, imgs[0], pad, pad, W-pad*2, mainH);
-      const subW = (W-pad*2-gap)/2;
-      drawImageCover(ctx, imgs[1], pad, pad+mainH+gap, subW, areaH-mainH-gap);
-      drawImageCover(ctx, imgs[2], pad+subW+gap, pad+mainH+gap, subW, areaH-mainH-gap);
-    } else if(count === 4) {
-      // 2x2 Grid Correct
-      const w = (W - pad*2 - gap)/2;
-      const h = (areaH - gap)/2;
-      drawImageCover(ctx, imgs[0], pad, pad, w, h);
-      drawImageCover(ctx, imgs[1], pad+w+gap, pad, w, h);
-      drawImageCover(ctx, imgs[2], pad, pad+h+gap, w, h);
-      drawImageCover(ctx, imgs[3], pad+w+gap, pad+h+gap, w, h);
-    }
+    ctx.fillStyle = '#09090b'; ctx.fillRect(0,0,W,H);
+    const pad = 40;
+    const gridH = H * 0.55;
+    
+    // Use Smart Grid logic
+    drawSmartGrid(ctx, state.images, pad, pad, W-pad*2, gridH, 15, 12);
     
     drawLogoBookmark(ctx, W/2);
     
-    // Text aligned relative to bottom of images
+    // Content area
+    let ty = gridH + 100;
+    const maxW = W - 120; // 60px padding per side
+    
     ctx.textAlign = 'center'; ctx.textBaseline='top';
-    let ty = areaH + 80;
     
     if(state.title) {
       ctx.font = `800 75px ${FONT_MANROPE}`; ctx.fillStyle='#fff';
-      wrapText(ctx, state.title, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=85; });
+      wrapText(ctx, state.title, maxW).forEach(l => { ctx.fillText(l, W/2, ty); ty+=85; });
     }
     if(state.desc) {
-      ty+=20; ctx.font=`400 38px ${FONT_INTER}`; ctx.fillStyle='#a1a1aa';
-      wrapText(ctx, state.desc, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
+      ty+=30; ctx.font=`400 38px ${FONT_INTER}`; ctx.fillStyle='#a1a1aa';
+      wrapText(ctx, state.desc, maxW).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
     }
     if(state.cta) {
       ty+=60; ctx.font=`700 42px ${FONT_INTER}`; ctx.fillStyle=state.accent;
-      ctx.fillText(state.cta, W/2, ty);
       const btnW = ctx.measureText(state.cta).width;
-      ctx.fillRect(W/2 - btnW/2, ty+50, btnW, 4);
+      ctx.fillText(state.cta, W/2, ty);
+      ctx.fillRect(W/2 - btnW/2, ty+55, btnW, 4);
     }
   }
 
+  // V3: Big Bold
   function renderV3(ctx) {
     if(state.images[0]) {
       drawImageCover(ctx, state.images[0], 0,0,W,H);
       ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0,0,W,H);
     } else { ctx.fillStyle='#111'; ctx.fillRect(0,0,W,H); }
+    
     drawLogoBookmark(ctx, W/2);
+    
     ctx.textAlign='center'; ctx.textBaseline='middle';
-    let ty = H/2 - 100;
+    let ty = H/2 - 80;
+    
     if(state.title) {
-      ctx.font = `900 120px ${FONT_MANROPE}`; ctx.fillStyle='#fff';
-      wrapText(ctx, state.title.toUpperCase(), W-60).forEach(l => { ctx.fillText(l, W/2, ty); ty+=120; });
+      ctx.font = `900 110px ${FONT_MANROPE}`; ctx.fillStyle='#fff';
+      wrapText(ctx, state.title.toUpperCase(), W-80).forEach(l => { ctx.fillText(l, W/2, ty); ty+=120; });
     }
-    ctx.fillStyle = state.accent; ctx.fillRect(W/2-60, ty, 120, 8); ty+=80;
+    ctx.fillStyle = state.accent; ctx.fillRect(W/2-60, ty, 120, 10); ty+=100;
+    
     if(state.desc) {
-      ctx.font = `500 48px ${FONT_INTER}`; ctx.fillStyle='#ccc';
-      wrapText(ctx, state.desc, W-150).forEach(l => { ctx.fillText(l, W/2, ty); ty+=60; });
+      ctx.font = `500 44px ${FONT_INTER}`; ctx.fillStyle='#ccc';
+      wrapText(ctx, state.desc, W-160).forEach(l => { ctx.fillText(l, W/2, ty); ty+=60; });
     }
+    
     if(state.cta) {
-      ty = H - 250;
-      ctx.save(); ctx.translate(W/2, ty); ctx.font=`700 40px ${FONT_INTER}`;
+      const btnY = H - 250;
+      ctx.save(); ctx.translate(W/2, btnY); ctx.font=`700 40px ${FONT_INTER}`;
       const btnW = ctx.measureText(state.cta).width + 120;
-      ctx.transform(1,0,-0.2,1,0,0); ctx.fillStyle=state.accent; ctx.fillRect(-btnW/2, -50, btnW, 100);
-      ctx.setTransform(1,0,0,1,W/2,ty); ctx.fillStyle='#000'; ctx.fillText(state.cta, 0, 5);
+      // Slanted button
+      ctx.transform(1,0,-0.2,1,0,0); 
+      ctx.fillStyle=state.accent; ctx.fillRect(-btnW/2, -50, btnW, 100);
+      ctx.setTransform(1,0,0,1,W/2,btnY); 
+      ctx.fillStyle='#000'; ctx.fillText(state.cta, 0, 5);
       ctx.restore();
     }
   }
 
+  // V4: Product Card
   function renderV4(ctx) {
      drawBackground(ctx);
-     const cX=40, cY=(H*0.15), cW=W-80, cH=H*0.7;
+     const cX=60, cY=(H*0.15), cW=W-120, cH=H*0.7;
+     
      ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=40;
-     ctx.fillStyle = document.getElementById('bgStyle').value === 'clean' ? '#fff' : '#18181b';
-     ctx.beginPath(); ctx.roundRect(cX, cY, cW, cH, 24); ctx.fill(); ctx.shadowBlur=0;
-     ctx.save(); ctx.clip();
-     if(state.images[0]) drawImageCover(ctx, state.images[0], cX, cY, cW, cH*0.55);
-     let ty = cY + cH*0.55 + 60;
-     const tx = cX + 50, tW = cW - 100;
      const isLight = document.getElementById('bgStyle').value === 'clean';
+     ctx.fillStyle = isLight ? '#fff' : '#18181b';
+     
+     ctx.beginPath(); ctx.roundRect(cX, cY, cW, cH, 30); ctx.fill(); ctx.shadowBlur=0;
+     ctx.save(); ctx.clip();
+     
+     // Image logic
+     if(state.images.length > 0) {
+        // Just show first image for card style
+        drawImageCover(ctx, state.images[0], cX, cY, cW, cH*0.55);
+     }
+     
+     let ty = cY + cH*0.55 + 70;
+     const tx = cX + 60, tW = cW - 120;
+     
      ctx.textAlign='left'; ctx.textBaseline='top';
      if(state.title) {
        ctx.fillStyle = isLight ? '#000' : '#fff'; ctx.font = `800 55px ${FONT_MANROPE}`;
        wrapText(ctx, state.title, tW).forEach(l => { ctx.fillText(l, tx, ty); ty+=65; });
      }
      if(state.desc) {
-       ty+=20; ctx.fillStyle = isLight ? '#555' : '#a1a1aa'; ctx.font = `400 34px ${FONT_INTER}`;
-       wrapText(ctx, state.desc, tW).slice(0,3).forEach(l => { ctx.fillText(l, tx, ty); ty+=45; });
+       ty+=20; ctx.fillStyle = isLight ? '#555' : '#a1a1aa'; ctx.font = `400 36px ${FONT_INTER}`;
+       wrapText(ctx, state.desc, tW).slice(0,3).forEach(l => { ctx.fillText(l, tx, ty); ty+=48; });
      }
      if(state.cta) {
        const btnY = cY + cH - 140;
@@ -472,269 +530,271 @@
      drawLogoBookmark(ctx, W/2);
   }
 
-  function renderV5(ctx) {
-    const isClean = document.getElementById('bgStyle').value === 'clean';
-    ctx.fillStyle = isClean ? '#f3f4f6' : '#111'; ctx.fillRect(0,0,W,H);
-    const splitH = H*0.6;
-    if(state.images.length > 1) {
-        drawImageCover(ctx, state.images[0], 0, 0, W/2, splitH);
-        drawImageCover(ctx, state.images[1], W/2, 0, W/2, splitH);
-        ctx.fillStyle='#fff'; ctx.fillRect(W/2-2, 0, 4, splitH);
-    } else if(state.images[0]) drawImageCover(ctx, state.images[0], 0, 0, W, splitH);
-    drawLogoBookmark(ctx, W/2);
-    let ty = splitH + 80;
-    ctx.textAlign='center'; ctx.textBaseline='top';
-    if(state.title) {
-       ctx.fillStyle = isClean ? '#000' : '#fff'; ctx.font = `800 70px ${FONT_MANROPE}`;
-       wrapText(ctx, state.title, W-80).forEach(l => { ctx.fillText(l, W/2, ty); ty+=80; });
-    }
-    ctx.fillStyle=state.accent; ctx.fillRect(W/2-40, ty+15, 80, 6); ty+=50;
-    if(state.desc) {
-       ctx.fillStyle = isClean ? '#555' : '#a1a1aa'; ctx.font = `500 38px ${FONT_INTER}`;
-       wrapText(ctx, state.desc, W-120).forEach(l => { ctx.fillText(l, W/2, ty); ty+=45; });
-    }
-    if(state.cta) {
-       ty += 40; ctx.fillStyle = isClean ? '#222' : '#ccc'; ctx.font=`600 40px ${FONT_INTER}`;
-       ctx.fillText(state.cta + " →", W/2, ty);
-    }
-  }
-
-  function renderV6(ctx) {
-     ctx.fillStyle='#09090b'; ctx.fillRect(0,0,W,H);
-     const imgH = H*0.55;
-     if(state.images[0]) {
-       drawImageCover(ctx, state.images[0], 0,0,W,imgH);
-       const g = ctx.createLinearGradient(0, imgH-200, 0, imgH);
-       g.addColorStop(0, 'transparent'); g.addColorStop(1, '#09090b');
-       ctx.fillStyle=g; ctx.fillRect(0,imgH-200,W,200);
-     }
-     drawLogoBookmark(ctx, 150);
-     const bx=W-140, by=imgH;
-     ctx.beginPath(); ctx.arc(bx, by, 90, 0, Math.PI*2);
-     ctx.fillStyle=state.accent; ctx.fill();
-     ctx.font='80px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-     ctx.fillText('🔥', bx, by+5);
-     let ty = imgH + 120;
-     if(state.title) {
-       ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillStyle='#fff'; ctx.font=`800 100px ${FONT_MANROPE}`;
-       wrapText(ctx, state.title.toUpperCase(), W-100).forEach(l => { ctx.fillText(l, 50, ty); ty+=100; });
-     }
-     ty+=20; ctx.fillStyle='#333'; ctx.fillRect(50, ty, W-100, 2); 
-     ctx.fillStyle=state.accent; ctx.fillRect(50, ty-4, 150, 10); ty+=60;
-     if(state.desc) {
-       ctx.fillStyle='#a1a1aa'; ctx.font=`500 40px ${FONT_INTER}`;
-       wrapText(ctx, state.desc, W-100).forEach(l => { ctx.fillText(l, 50, ty); ty+=50; });
-     }
-  }
-
-  function renderV7(ctx) {
-    ctx.fillStyle='#111'; ctx.fillRect(0,0,W,H);
-    if(state.images[0]) {
-      ctx.save();
-      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(W,0); ctx.lineTo(W, H*0.65); ctx.lineTo(0, H*0.55); ctx.closePath(); ctx.clip();
-      drawImageCover(ctx, state.images[0], 0, 0, W, H*0.7);
-      ctx.restore();
-      ctx.strokeStyle=state.accent; ctx.lineWidth=8;
-      ctx.beginPath(); ctx.moveTo(0,H*0.55); ctx.lineTo(W,H*0.65); ctx.stroke();
-    }
-    drawLogoBookmark(ctx, W-150);
-    let ty = H*0.65 + 80;
-    ctx.textAlign='left'; ctx.textBaseline='top';
-    if(state.title) {
-       ctx.fillStyle='#fff'; ctx.font=`800 90px ${FONT_MANROPE}`;
-       wrapText(ctx, state.title, W-100).forEach(l => { ctx.fillText(l, 60, ty); ty+=95; });
-    }
-    if(state.desc) {
-       ty+=30; ctx.fillStyle='#888'; ctx.font=`500 38px ${FONT_INTER}`;
-       wrapText(ctx, state.desc, W-100).forEach(l => { ctx.fillText(l, 60, ty); ty+=45; });
-    }
-    if(state.cta) {
-       const by = H-180;
-       ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.strokeRect(60, by, W-120, 100);
-       ctx.fillStyle=state.accent; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font=`700 36px ${FONT_MANROPE}`;
-       ctx.fillText(state.cta, W/2, by+55);
-    }
-  }
-
-  function renderV8(ctx) {
-    if(state.images[0]) {
-      drawImageCover(ctx, state.images[0], 0,0,W,H);
-      ctx.fillStyle='rgba(0,0,0,0.65)'; ctx.fillRect(0,0,W,H);
-    } else { ctx.fillStyle='#222'; ctx.fillRect(0,0,W,H); }
-    drawLogoBookmark(ctx, W/2);
-    const fx=50, fy=200, fw=W-100, fh=H-300;
-    ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=2; ctx.strokeRect(fx,fy,fw,fh);
-    ctx.fillStyle=state.accent; const s=60;
-    ctx.fillRect(fx-4, fy-4, s, 8); ctx.fillRect(fx-4, fy-4, 8, s);
-    ctx.fillRect(fx+fw-s, fy-4, s+8, 8); ctx.fillRect(fx+fw, fy-4, 8, s);
-    ctx.fillRect(fx-4, fy+fh, s, 8); ctx.fillRect(fx-4, fy+fh-s, 8, s+8);
-    ctx.fillRect(fx+fw-s, fy+fh, s+8, 8); ctx.fillRect(fx+fw, fy+fh-s, 8, s+8);
-    const cy = fy+fh/2; ctx.textAlign='center'; ctx.textBaseline='middle';
-    let ty = cy - 80; 
-    if(state.title) {
-      ctx.fillStyle='#fff'; ctx.font=`800 80px ${FONT_MANROPE}`;
-      const lines = wrapText(ctx, state.title.toUpperCase(), fw-80);
-      ty -= (lines.length*90)/2;
-      lines.forEach(l => { ctx.fillText(l, W/2, ty); ty+=90; });
-    }
-    if(state.desc) {
-      ty+=10; ctx.fillStyle='#d4d4d8'; ctx.font=`500 40px ${FONT_INTER}`;
-      wrapText(ctx, state.desc, fw-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
-    }
-    if(state.cta) {
-      const by = fy+fh - 140;
-      ctx.fillStyle=state.accent; ctx.fillRect(fx+80, by, fw-160, 90);
-      ctx.fillStyle='#000'; ctx.font=`700 36px ${FONT_MANROPE}`;
-      ctx.fillText(state.cta, W/2, by+45);
-    }
-  }
-
-  // --- V9: ADAPTIVE GALLERY (Fixed) ---
+  // V9: Adaptive Gallery (Fixed & Cleaned)
   function renderV9(ctx) {
     ctx.fillStyle='#09090b'; ctx.fillRect(0,0,W,H);
     const imgs = state.images;
     const bigH = H * 0.50;
-    const gap = 15;
+    const gap = 20;
     
-    // Draw Top Image
+    // 1. Top Image
     if(imgs[0]) drawImageCover(ctx, imgs[0], 0, 0, W, bigH);
 
+    // 2. Bottom Strip (Adaptive)
     const startY = bigH + gap;
     const stripH = H * 0.18;
+    const remain = Math.min(imgs.length - 1, 3);
     
-    // How many images at bottom? (max 3)
-    const count = Math.min(imgs.length - 1, 3);
-    
-    if(count > 0) {
-       const w = (W - gap * (count + 1)) / count;
-       for(let i=0; i<count; i++) {
+    if(remain > 0) {
+       const w = (W - gap * (remain + 1)) / remain;
+       for(let i=0; i<remain; i++) {
           drawImageCover(ctx, imgs[i+1], gap + i*(w+gap), startY, w, stripH, 12);
        }
     } else {
-       // Placeholder strip if single image
+       // Decorative strip if no extra photos
        ctx.fillStyle='#18181b'; ctx.fillRect(gap, startY, W-gap*2, 10);
     }
     
     drawLogoBookmark(ctx, W/2);
     
-    let ty = startY + stripH + 60;
+    let ty = startY + stripH + 80;
     ctx.textAlign = 'center'; ctx.textBaseline='top';
+    const maxW = W-120;
 
     if(state.title) {
         ctx.fillStyle='#fff'; ctx.font=`800 80px ${FONT_MANROPE}`;
-        wrapText(ctx, state.title, W-80).forEach(l => { ctx.fillText(l, W/2, ty); ty+=90; });
+        wrapText(ctx, state.title, maxW).forEach(l => { ctx.fillText(l, W/2, ty); ty+=90; });
     }
     if(state.desc) {
         ty+=20; ctx.fillStyle='#a1a1aa'; ctx.font=`500 40px ${FONT_INTER}`;
-        wrapText(ctx, state.desc, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
+        wrapText(ctx, state.desc, maxW).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
     }
     if(state.cta) {
-        ty+=50;
+        ty+=60;
         ctx.fillStyle=state.accent; 
-        const btnW = ctx.measureText(state.cta).width + 100;
-        ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 100, 50); ctx.fill();
+        const btnW = ctx.measureText(state.cta).width + 120;
+        ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 110, 55); ctx.fill();
         ctx.fillStyle='#000'; ctx.font=`700 38px ${FONT_INTER}`; ctx.textBaseline='middle';
+        ctx.fillText(state.cta, W/2, ty+55);
+    }
+  }
+
+  // V10: New Year Red (Fixed Text)
+  function renderV10(ctx) {
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, '#7f1d1d'); g.addColorStop(1, '#250505');
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    
+    // Photo frame
+    if(state.images[0]) {
+      const p = 40;
+      drawImageCover(ctx, state.images[0], p, 220, W-p*2, H*0.45, 20);
+      ctx.strokeStyle = '#ef4444'; ctx.lineWidth=2; 
+      ctx.strokeRect(p+10, 230, W-p*2-20, H*0.45-20); // Inner red border
+    }
+
+    // Snow
+    ctx.fillStyle = '#fff';
+    for(let i=0; i<80; i++) {
+        const x = Math.random()*W, y = Math.random()*H, s = Math.random()*4;
+        ctx.globalAlpha = Math.random()*0.6; ctx.beginPath(); ctx.arc(x,y,s,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    drawLogoBookmark(ctx, W/2);
+
+    let ty = H*0.5 + 280;
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    
+    ctx.font = `italic 700 50px ${FONT_SERIF}`; ctx.fillStyle = '#fca5a5';
+    ctx.fillText("✨ С Новым Годом! ✨", W/2, ty - 80);
+
+    if(state.title) {
+        ctx.fillStyle='#fff'; ctx.font=`700 85px ${FONT_SERIF}`;
+        wrapText(ctx, state.title, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=95; });
+    }
+    if(state.desc) {
+        ty+=20; ctx.fillStyle='#e5e5e5'; ctx.font=`400 38px ${FONT_SERIF}`;
+        wrapText(ctx, state.desc, W-140).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
+    }
+    if(state.cta) {
+        ty+=60; 
+        const btnW = ctx.measureText(state.cta).width + 120;
+        ctx.fillStyle='#fff'; ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 100, 16); ctx.fill();
+        ctx.fillStyle='#b91c1c'; ctx.font=`700 36px ${FONT_INTER}`; ctx.textBaseline='middle';
         ctx.fillText(state.cta, W/2, ty+50);
     }
   }
 
-  // --- V10: CHRISTMAS (Fixed Text & Button) ---
-  function renderV10(ctx) {
-    const g = ctx.createLinearGradient(0,0,0,H);
-    g.addColorStop(0, '#7f1d1d'); g.addColorStop(1, '#450a0a');
-    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
-    
-    if(state.images[0]) drawImageCover(ctx, state.images[0], 40, 200, W-80, H*0.5, 20);
-    
-    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 4;
-    ctx.strokeRect(30, 30, W-60, H-60);
-    
-    ctx.fillStyle = '#fff';
-    for(let i=0; i<150; i++) {
-        const x = Math.random()*W; const y = Math.random()*H;
-        const s = Math.random()*5 + 2; const o = Math.random()*0.7;
-        ctx.globalAlpha = o; ctx.beginPath(); ctx.arc(x,y,s,0,Math.PI*2); ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-
-    drawLogoBookmark(ctx, W/2);
-
-    let ty = H*0.5 + 260;
-    ctx.textAlign='center'; ctx.textBaseline='top';
-    
-    ctx.font = `italic 700 60px ${FONT_SERIF}`; ctx.fillStyle = '#fca5a5';
-    ctx.fillText("С Новым Годом!", W/2, ty - 80);
-
-    if(state.title) {
-        ctx.fillStyle='#fff'; ctx.font=`700 90px ${FONT_SERIF}`;
-        wrapText(ctx, state.title, W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=100; });
-    }
-    if(state.desc) {
-        ty+=20; ctx.fillStyle='#e5e5e5'; ctx.font=`400 40px ${FONT_SERIF}`;
-        wrapText(ctx, state.desc, W-140).forEach(l => { ctx.fillText(l, W/2, ty); ty+=50; });
-    }
-    
-    if(state.cta) {
-        ty+=50; ctx.fillStyle = '#fff'; 
-        const btnW = ctx.measureText(state.cta).width + 160;
-        ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 100, 10); ctx.fill();
-        ctx.strokeStyle=state.accent; ctx.lineWidth=4; ctx.strokeRect(W/2 - btnW/2 + 5, ty+5, btnW-10, 90);
-        
-        ctx.fillStyle='#b91c1c'; ctx.font=`700 38px ${FONT_INTER}`; ctx.textBaseline='middle';
-        ctx.fillText(state.cta + " 🎄", W/2, ty+50);
-    }
-  }
-
-  // --- V11: 4-STRIPS (Fixed: Solid Footer) ---
+  // V11: Auto Catalog (Fixed Columns)
   function renderV11(ctx) {
      ctx.fillStyle = '#000'; ctx.fillRect(0,0,W,H);
      
-     // Images take 75% height
-     const colW = W / 4;
-     const imgH = H * 0.75;
+     const count = Math.min(state.images.length, 4) || 1;
+     const colW = W / count;
+     const imgH = H * 0.72;
      
-     state.images.slice(0,4).forEach((img, i) => {
-        drawImageCover(ctx, img, i*colW, 0, colW, imgH);
-        // Dimming
-        ctx.fillStyle = 'rgba(0,0,0,0.1)'; ctx.fillRect(i*colW, 0, colW, imgH);
-     });
+     for(let i=0; i<count; i++) {
+        drawImageCover(ctx, state.images[i], i*colW, 0, colW, imgH);
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(i*colW, 0, colW, imgH);
+        // Vertical lines
+        if(i > 0) { ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.fillRect(i*colW, 0, 2, imgH); }
+     }
      
      drawLogoBookmark(ctx, W/2);
      
-     // Solid Footer Area
+     // Footer
      const textY = imgH;
      ctx.fillStyle = '#111'; ctx.fillRect(0, textY, W, H - textY);
-     ctx.fillStyle = state.accent; ctx.fillRect(0, textY, W, 6);
+     ctx.fillStyle = state.accent; ctx.fillRect(0, textY, W, 8);
      
-     let ty = textY + 80;
+     let ty = textY + 90;
      ctx.textAlign = 'center'; ctx.textBaseline='top';
      
      if(state.title) {
-        ctx.fillStyle='#fff'; ctx.font=`800 80px ${FONT_MANROPE}`;
-        ctx.fillText(state.title, W/2, ty);
+        ctx.fillStyle='#fff'; ctx.font=`800 75px ${FONT_MANROPE}`;
+        wrapText(ctx, state.title, W-80).forEach(l => { ctx.fillText(l, W/2, ty); ty+=85; });
      }
      
-     ty += 100;
+     ty += 20;
      if(state.desc) {
-        ctx.fillStyle='#888'; ctx.font=`500 36px ${FONT_INTER}`;
+        ctx.fillStyle='#999'; ctx.font=`500 36px ${FONT_INTER}`;
         wrapText(ctx, state.desc, W-100).slice(0,2).forEach(l => { ctx.fillText(l, W/2, ty); ty+=45; });
      }
      
      if(state.cta) {
         ty += 60;
-        const btnW = ctx.measureText(state.cta).width + 120;
-        ctx.fillStyle = '#222'; ctx.beginPath(); ctx.roundRect(W/2 - btnW/2, ty, btnW, 100, 16); ctx.fill();
-        ctx.strokeStyle = '#333'; ctx.lineWidth=2; ctx.stroke();
+        const btnW = ctx.measureText(state.cta).width + 100;
+        ctx.strokeStyle = '#444'; ctx.lineWidth=3;
+        ctx.strokeRect(W/2 - btnW/2, ty, btnW, 90);
         
-        ctx.fillStyle = state.accent; ctx.font=`700 36px ${FONT_INTER}`; 
+        ctx.fillStyle = state.accent; ctx.font=`700 34px ${FONT_INTER}`; 
         ctx.textBaseline='middle';
-        ctx.fillText(state.cta, W/2, ty+50);
+        ctx.fillText(state.cta, W/2, ty+45);
      }
+  }
+
+  // --- NEW TEMPLATE 1: V12 GOLD LUXURY ---
+  function renderV12(ctx) {
+    // Background: Dark Texture
+    ctx.fillStyle = '#0c0a09'; ctx.fillRect(0,0,W,H);
+    
+    // Circular Image cutout
+    if(state.images[0]) {
+      const cx = W/2, cy = H*0.4, r = 400;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.clip();
+      drawImageCover(ctx, state.images[0], cx-r, cy-r, r*2, r*2);
+      ctx.restore();
+      
+      // Gold Border
+      ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(cx, cy, r+10, 0, Math.PI*2); ctx.stroke();
+      ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, r+25, 0, Math.PI*2); ctx.stroke();
+    }
+    
+    drawLogoBookmark(ctx, W/2);
+
+    // Ornament corners
+    ctx.fillStyle = '#d4af37';
+    // Dots decoration
+    for(let x=40; x<W; x+=40) { ctx.fillRect(x, H-120, 2, 2); ctx.fillRect(x, 120, 2, 2); }
+
+    let ty = H * 0.4 + 450;
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    
+    // Title
+    if(state.title) {
+      ctx.font = `700 100px ${FONT_GOLD}`; 
+      const grad = ctx.createLinearGradient(0, ty, W, ty);
+      grad.addColorStop(0, '#bf953f'); grad.addColorStop(0.5, '#fcf6ba'); grad.addColorStop(1, '#bf953f');
+      ctx.fillStyle = grad;
+      wrapText(ctx, state.title.toUpperCase(), W-100).forEach(l => { ctx.fillText(l, W/2, ty); ty+=110; });
+    }
+    
+    // Divider
+    ctx.fillStyle = '#d4af37'; ctx.fillRect(W/2-50, ty+10, 100, 2); ty+=60;
+    
+    // Desc
+    if(state.desc) {
+      ctx.font = `400 42px ${FONT_SERIF}`; ctx.fillStyle = '#a8a29e';
+      wrapText(ctx, state.desc, W-140).forEach(l => { ctx.fillText(l, W/2, ty); ty+=55; });
+    }
+    
+    // CTA
+    if(state.cta) {
+      ty += 80;
+      ctx.font = `700 40px ${FONT_MANROPE}`; ctx.fillStyle = '#d4af37';
+      ctx.fillText(state.cta, W/2, ty);
+    }
+  }
+
+  // --- NEW TEMPLATE 2: V13 NEON FROST ---
+  function renderV13(ctx) {
+    // Bg
+    if(state.images[0]) {
+       drawImageCover(ctx, state.images[0], 0,0,W,H);
+       ctx.fillStyle = 'rgba(10,15,30, 0.8)'; ctx.fillRect(0,0,W,H);
+    } else {
+       ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,W,H);
+    }
+    
+    // Glass Card
+    const cardX = 60, cardW = W-120, cardH = H-300;
+    const cardY = (H - cardH)/2;
+    
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,255,255,0.05)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(cardX, cardY, cardW, cardH, 40); 
+    ctx.fill(); ctx.stroke();
+    ctx.restore();
+    
+    // Inner Image
+    if(state.images[0]) {
+      drawImageCover(ctx, state.images[0], cardX+20, cardY+20, cardW-40, cardH*0.5, 30);
+    }
+
+    // Neon elements
+    ctx.shadowColor = '#38bdf8'; ctx.shadowBlur = 20;
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath(); ctx.arc(cardX+cardW-60, cardY+cardH*0.5, 40, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0; ctx.fillStyle = '#fff';
+    ctx.font = '40px serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('❄️', cardX+cardW-60, cardY+cardH*0.5 + 2);
+
+    let ty = cardY + cardH*0.5 + 80;
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    const tx = cardX + 50; const tw = cardW - 100;
+
+    if(state.title) {
+       ctx.fillStyle = '#fff'; ctx.font = `800 70px ${FONT_MANROPE}`;
+       wrapText(ctx, state.title, tw).forEach(l => { ctx.fillText(l, tx, ty); ty+=80; });
+    }
+    
+    if(state.desc) {
+       ty+=20; ctx.fillStyle = '#cbd5e1'; ctx.font = `500 36px ${FONT_INTER}`;
+       wrapText(ctx, state.desc, tw).forEach(l => { ctx.fillText(l, tx, ty); ty+=45; });
+    }
+    
+    if(state.cta) {
+       const by = cardY + cardH - 120;
+       ctx.shadowColor = state.accent; ctx.shadowBlur = 30;
+       ctx.fillStyle = state.accent; ctx.beginPath(); ctx.roundRect(tx, by, tw, 80, 20); ctx.fill();
+       ctx.shadowBlur = 0;
+       
+       ctx.fillStyle = '#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
+       ctx.font = `700 32px ${FONT_INTER}`;
+       ctx.fillText(state.cta, tx + tw/2, by + 40);
+    }
+    
+    drawLogoBookmark(ctx, W/2);
   }
 
   // --- ACTIONS ---
   async function generate() {
     const btn = document.getElementById('renderBtn');
+    const oldText = btn.innerText;
     btn.innerText = "⏳ Рисую...";
     
     state.title = document.getElementById('txtTitle').value;
@@ -753,41 +813,40 @@
     renderV2(getCtx('c2'));
     renderV3(getCtx('c3'));
     renderV4(getCtx('c4'));
-    renderV5(getCtx('c5'));
-    renderV6(getCtx('c6'));
-    renderV7(getCtx('c7'));
-    renderV8(getCtx('c8'));
-    
-    // NEW ONES
     renderV9(getCtx('c9'));
-    renderV10(getCtx('c10'));
     renderV11(getCtx('c11'));
+    renderV10(getCtx('c10'));
+    renderV12(getCtx('c12'));
+    renderV13(getCtx('c13'));
     
     document.getElementById('gridArea').style.display = 'flex';
-    btn.innerText = "Обновить";
-    document.getElementById('gridArea').scrollIntoView({ behavior: 'smooth' });
+    btn.innerText = oldText;
+    // Scroll a bit
+    setTimeout(() => document.querySelector('.preview-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
   async function shareCanvas(id) {
     const canvas = document.getElementById(id);
     const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-    const file = new File([blob], "design_pro.png", { type: "image/png" });
+    const file = new File([blob], "story_design.png", { type: "image/png" });
     if (navigator.share && navigator.canShare({ files: [file] })) {
       try { await navigator.share({ files: [file] }); } catch (err) {}
     } else {
       const a = document.createElement('a');
-      a.download = 'design.png'; a.href = canvas.toDataURL(); a.click();
+      a.download = `story_${id}.png`; a.href = canvas.toDataURL(); a.click();
     }
   }
 
   document.getElementById('renderBtn').addEventListener('click', generate);
 
+  // Initial blank state
   window.onload = () => {
-    ['c1','c2','c3','c4','c5','c6','c7','c8','c9','c10','c11'].forEach(id => {
-       const ctx = getCtx(id);
+    document.querySelectorAll('canvas').forEach(c => {
+       const ctx = c.getContext('2d');
        ctx.fillStyle='#111'; ctx.fillRect(0,0,W,H);
        ctx.fillStyle='#333'; ctx.font=`700 40px ${FONT_INTER}`;
-       ctx.textAlign='center'; ctx.fillText("Preview", W/2, H/2);
+       ctx.textAlign='center'; ctx.textBaseline='middle';
+       ctx.fillText("Preview Area", W/2, H/2);
     });
   };
 </script>
