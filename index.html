@@ -156,7 +156,7 @@
   <div class="sidebar">
     <div class="header">
       <h1>CSG Stories</h1>
-      <p>v 4</p>
+      <p>v 4.1(android?)</p>
     </div>
 
     <!-- 1. PHOTOS -->
@@ -770,31 +770,59 @@
 
   async function shareCanvas(id) {
     const canvas = document.getElementById(id);
-    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-    const file = new File([blob], `story_${id}.png`, { type: "image/png" });
+    const btn = document.querySelector(`button[onclick="shareCanvas('${id}')"]`);
+    const originalText = btn.innerText;
     
-    let shared = false;
-    // Try Native Share
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { 
-        await navigator.share({ files: [file] }); 
-        shared = true;
-      } catch (err) { 
-        console.log('Share failed/cancelled, falling back to download'); 
-      }
-    }
+    // Визуальная индикация
+    btn.innerText = "Сохраняю...";
+    
+    try {
+      // 1. Конвертируем Canvas в Blob (для Android это критично, DataURL часто не работает)
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
+      
+      // Генерируем уникальное имя (чтобы избежать конфликтов имен файлов)
+      const fileName = `csg_story_${Date.now()}.png`;
+      const file = new File([blob], fileName, { type: "image/png" });
 
-    // Force download if share didn't happen (PC/Desktop fallback)
-    if (!shared) {
+      // 2. Пробуем нативный шеринг (приоритет для Android/iOS)
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'CSG Story',
+            text: 'Макет создан в CSG Stories'
+          });
+          btn.innerText = originalText;
+          return; // Успех, выходим
+        } catch (err) {
+          console.log('Share canceled/failed', err);
+        }
+      }
+
+      // 3. ФОЛЛБЭК: Скачивание через Blob URL (если шеринг не сработал или это ПК)
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = canvas.toDataURL("image/png");
-      link.download = `story_${id}.png`;
+      link.href = url;
+      link.download = fileName;
+      link.style.display = 'none';
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      
+      // Чистим память
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 100);
+
+    } catch (e) {
+      console.error("Ошибка сохранения:", e);
+      alert("Ошибка сохранения. Попробуйте сделать скриншот.");
+    } finally {
+      btn.innerText = originalText;
     }
   }
 
+  // ВАЖНО: Эти строчки должны остаться, чтобы кнопка работала!
   document.getElementById('renderBtn').addEventListener('click', generate);
 
   window.onload = () => {
@@ -809,5 +837,6 @@
 </script>
 </body>
 </html>
+
 
 
