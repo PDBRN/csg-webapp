@@ -784,72 +784,96 @@
     setTimeout(() => document.querySelector('.preview-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
-  async function shareCanvas(id) {
+   async function shareCanvas(id) {
     const canvas = document.getElementById(id);
     const btn = document.querySelector(`button[onclick="shareCanvas('${id}')"]`);
     const originalText = btn.innerText;
     
-    // Блокируем кнопку на время обработки
     btn.disabled = true;
-    btn.innerText = "⏳ Обработка...";
+    btn.innerText = "⏳...";
 
-    // Небольшая пауза, чтобы интерфейс успел обновиться
-    await new Promise(r => setTimeout(r, 100));
+    // Ждем чуть-чуть для отрисовки интерфейса
+    await new Promise(r => setTimeout(r, 50));
 
     try {
-      // 1. Конвертируем Canvas в Blob (это надежнее, чем строка текста)
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
-      const fileName = `csg_${Date.now()}.png`;
-      const file = new File([blob], fileName, { type: "image/png" });
+      const file = new File([blob], `csg_${Date.now()}.png`, { type: "image/png" });
 
-      // 2. ПОПЫТКА №1: Нативный Share (Работает на Samsung, Pixel, iPhone)
-      // Пробуем передать именно ФАЙЛ
+      // ПОПЫТКА 1: SHARE (Если работает - идеально)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             files: [file],
-            title: 'CSG Story',
-            text: '' // Пустой текст часто помогает избежать багов
+            title: 'CSG Story'
           });
-          // Если сработало - сбрасываем кнопку и выходим
           btn.innerText = originalText;
           btn.disabled = false;
-          return; 
+          return;
         } catch (err) {
-          console.log("Share API закрыто или не сработало, идем дальше...");
+          console.log("Share не сработал, открываем просмотр");
         }
       }
 
-      // 3. ПОПЫТКА №2: Открытие в новой вкладке (Fallback)
-      // Создаем временную ссылку на файл в памяти
-      const blobUrl = URL.createObjectURL(blob);
+      // ПОПЫТКА 2: ВНУТРЕННЕЕ ОКНО (100% рабочий вариант)
+      // Мы создаем div поверх всего сайта, куда кладем картинку.
+      // Это НЕ новая вкладка, поэтому "черного экрана" быть не может.
+      showInternalImage(dataUrl);
       
-      // Пытаемся открыть новое окно
-      const newWindow = window.open(blobUrl, '_blank');
-
-      // Проверяем, не заблокировал ли браузер всплывающее окно
-      if (newWindow) {
-        btn.innerText = "✅ Открыто";
-        alert("Картинка открыта в новой вкладке.\n\nЗажми её пальцем и выбери «Сохранить» или «Скачать»!");
-        
-        // Чистим память через 1 минуту (чтобы успели сохранить)
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-      } else {
-        // Если window.open заблокирован (редко, но бывает)
-        throw new Error("Браузер заблокировал открытие вкладки");
-      }
+      btn.innerText = "✅ Готово";
+      setTimeout(() => { 
+        btn.innerText = originalText; 
+        btn.disabled = false; 
+      }, 1000);
 
     } catch (e) {
-      console.error(e);
-      // Если всё сломалось — выводим alert
-      alert("Не удалось открыть меню. Попробуйте сделать скриншот.");
-    } finally {
-      // Возвращаем кнопку в исходное состояние
-      setTimeout(() => {
-         btn.innerText = originalText;
-         btn.disabled = false;
-      }, 2000);
+      alert("Ошибка: " + e.message);
+      btn.innerText = originalText;
+      btn.disabled = false;
     }
+  }
+
+  function showInternalImage(src) {
+    // 1. Создаем контейнер на весь экран
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(10,10,10, 0.95); z-index: 10000;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        overflow: hidden; padding: 20px; box-sizing: border-box;
+    `;
+
+    // 2. Создаем картинку
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.cssText = `
+        max-width: 100%; max-height: 80%;
+        border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        object-fit: contain;
+    `;
+
+    // 3. Текст-инструкция
+    const tip = document.createElement('div');
+    tip.innerHTML = "☝️ <b>Зажми картинку пальцем</b><br>и выбери «Сохранить» или «Скачать»";
+    tip.style.cssText = `
+        color: #fff; text-align: center; margin-top: 20px;
+        font-family: sans-serif; font-size: 16px; line-height: 1.5;
+    `;
+
+    // 4. Кнопка Закрыть
+    const closeBtn = document.createElement('button');
+    closeBtn.innerText = "Закрыть";
+    closeBtn.style.cssText = `
+        margin-top: 20px; padding: 12px 30px;
+        background: #333; color: #fff; border: 1px solid #555;
+        border-radius: 8px; font-size: 14px;
+    `;
+    closeBtn.onclick = () => document.body.removeChild(overlay);
+
+    overlay.appendChild(img);
+    overlay.appendChild(tip);
+    overlay.appendChild(closeBtn);
+    document.body.appendChild(overlay);
   }
 
   // --- ВАЖНО: ЭТОТ КОД ДОЛЖЕН ОСТАТЬСЯ ---
@@ -867,6 +891,7 @@
 </script>
 </body>
 </html>
+
 
 
 
