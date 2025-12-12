@@ -151,12 +151,13 @@
 </head>
 <body>
 
+<!-- FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF -->
 <div class="app-wrapper">
   <!-- SETTINGS -->
   <div class="sidebar">
     <div class="header">
       <h1>CSG Stories</h1>
-      <p>v 4.1(android?)</p>
+      <p>v 4.2(android?)</p>
     </div>
 
     <!-- 1. PHOTOS -->
@@ -294,9 +295,24 @@
   }
   
   function loadImage(src) {
-    return new Promise((r) => {
-      const img = new Image(); img.crossOrigin = "anonymous";
-      img.onload = () => r(img); img.onerror = () => r(null); img.src = src;
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = async () => {
+        try {
+          // Ждем, пока браузер реально развернет картинку в памяти
+          await img.decode();
+          resolve(img);
+        } catch (e) {
+          // Если decode не сработал, всё равно пробуем вернуть img
+          resolve(img);
+        }
+      };
+      img.onerror = () => {
+        console.error("Ошибка загрузки фото:", src);
+        resolve(null);
+      };
+      img.src = src;
     });
   }
 
@@ -768,55 +784,56 @@
     setTimeout(() => document.querySelector('.preview-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
-  async function shareCanvas(id) {
+   async function shareCanvas(id) {
     const canvas = document.getElementById(id);
     const btn = document.querySelector(`button[onclick="shareCanvas('${id}')"]`);
     const originalText = btn.innerText;
     
-    // Визуальная индикация
-    btn.innerText = "Сохраняю...";
+    btn.innerText = "⏳...";
     
     try {
-      // 1. Конвертируем Canvas в Blob (для Android это критично, DataURL часто не работает)
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
-      
-      // Генерируем уникальное имя (чтобы избежать конфликтов имен файлов)
-      const fileName = `csg_story_${Date.now()}.png`;
+      // 1. Создаем Blob
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.9));
+      const fileName = `csg_${Date.now()}.png`;
       const file = new File([blob], fileName, { type: "image/png" });
 
-      // 2. Пробуем нативный шеринг (приоритет для Android/iOS)
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      // 2. Пытаемся вызвать нативное меню "Поделиться"
+      let shareSuccess = false;
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             files: [file],
             title: 'CSG Story',
-            text: 'Макет создан в CSG Stories'
+            text: 'CSG Story'
           });
-          btn.innerText = originalText;
-          return; // Успех, выходим
+          shareSuccess = true;
         } catch (err) {
-          console.log('Share canceled/failed', err);
+          console.warn('Share cancelled or failed:', err);
         }
       }
 
-      // 3. ФОЛЛБЭК: Скачивание через Blob URL (если шеринг не сработал или это ПК)
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      
-      // Чистим память
-      setTimeout(() => {
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }, 100);
+      // 3. Если Share не сработал (или отменен), пробуем принудительное скачивание
+      if (!shareSuccess) {
+        const url = URL.createObjectURL(blob);
+        
+        // Для Android WebView часто лучше открыть в новой вкладке, если скачивание блокируется
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.target = "_blank"; // Помогает в некоторых версиях Android
+        document.body.appendChild(link);
+        link.click();
+        
+        // Даем чуть больше времени перед удалением ссылки
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, 1000);
+      }
 
     } catch (e) {
-      console.error("Ошибка сохранения:", e);
-      alert("Ошибка сохранения. Попробуйте сделать скриншот.");
+      // Показываем ошибку пользователю, чтобы понять причину
+      alert("Ошибка: " + e.message);
     } finally {
       btn.innerText = originalText;
     }
@@ -837,6 +854,7 @@
 </script>
 </body>
 </html>
+
 
 
 
