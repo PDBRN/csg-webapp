@@ -157,7 +157,7 @@
   <div class="sidebar">
     <div class="header">
       <h1>CSG Stories</h1>
-      <p>v 4.5(android?)</p>
+      <p>v 4.6(android?)</p>
     </div>
 
     <!-- 1. PHOTOS -->
@@ -784,7 +784,7 @@
     setTimeout(() => document.querySelector('.preview-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
-   async function shareCanvas(id) {
+    async function shareCanvas(id) {
     const canvas = document.getElementById(id);
     const btn = document.querySelector(`button[onclick="shareCanvas('${id}')"]`);
     const originalText = btn.innerText;
@@ -792,34 +792,44 @@
     btn.disabled = true;
     btn.innerText = "⏳...";
 
-    // Ждем чуть-чуть для отрисовки интерфейса
-    await new Promise(r => setTimeout(r, 50));
+    // Даем интерфейсу продышаться
+    await new Promise(r => setTimeout(r, 100));
 
     try {
       const dataUrl = canvas.toDataURL('image/png', 1.0);
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
-      const file = new File([blob], `csg_${Date.now()}.png`, { type: "image/png" });
+      const fileName = `csg_${Date.now()}.png`;
 
-      // ПОПЫТКА 1: SHARE (Если работает - идеально)
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      // ===== ПОПЫТКА 1: Нативный Share (Самый удобный) =====
+      let shareSuccess = false;
+      if (navigator.share && navigator.canShare) {
         try {
-          await navigator.share({
-            files: [file],
-            title: 'CSG Story'
-          });
-          btn.innerText = originalText;
-          btn.disabled = false;
-          return;
+          // Конвертируем dataUrl в Blob (это надежнее для Андроида)
+          const response = await fetch(dataUrl);
+          const blob = await response.blob();
+          const file = new File([blob], fileName, { type: 'image/png' });
+
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'CSG Story'
+            });
+            shareSuccess = true;
+          }
         } catch (err) {
-          console.log("Share не сработал, открываем просмотр");
+          console.log('Share не сработал, открываем окно');
         }
       }
 
-      // ПОПЫТКА 2: ВНУТРЕННЕЕ ОКНО (100% рабочий вариант)
-      // Мы создаем div поверх всего сайта, куда кладем картинку.
-      // Это НЕ новая вкладка, поэтому "черного экрана" быть не может.
-      showInternalImage(dataUrl);
-      
+      if (shareSuccess) {
+        btn.innerText = originalText;
+        btn.disabled = false;
+        return;
+      }
+
+      // ===== ПОПЫТКА 2: Модальное окно (Если Share не сработал) =====
+      // Это работает всегда, так как не открывает новых вкладок
+      showImageModal(dataUrl);
+
       btn.innerText = "✅ Готово";
       setTimeout(() => { 
         btn.innerText = originalText; 
@@ -827,56 +837,69 @@
       }, 1000);
 
     } catch (e) {
+      console.error('Ошибка:', e);
       alert("Ошибка: " + e.message);
       btn.innerText = originalText;
       btn.disabled = false;
     }
   }
 
-  function showInternalImage(src) {
-    // 1. Создаем контейнер на весь экран
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(10,10,10, 0.95); z-index: 10000;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        overflow: hidden; padding: 20px; box-sizing: border-box;
+  function showImageModal(dataUrl) {
+    // 1. Фон (Overlay)
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(10, 10, 10, 0.98);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 99999; padding: 20px; box-sizing: border-box;
+      backdrop-filter: blur(5px);
     `;
 
-    // 2. Создаем картинку
+    // 2. Картинка
     const img = document.createElement('img');
-    img.src = src;
+    img.src = dataUrl;
+    // ВАЖНО: touch-action и user-select должны быть auto, чтобы работал долгий тап!
     img.style.cssText = `
-        max-width: 100%; max-height: 80%;
-        border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        object-fit: contain;
+      max-width: 100%; max-height: 65vh;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      touch-action: auto; 
+      pointer-events: auto;
+      -webkit-user-select: auto; user-select: auto;
+      -webkit-touch-callout: default;
     `;
 
-    // 3. Текст-инструкция
-    const tip = document.createElement('div');
-    tip.innerHTML = "☝️ <b>Зажми картинку пальцем</b><br>и выбери «Сохранить» или «Скачать»";
-    tip.style.cssText = `
-        color: #fff; text-align: center; margin-top: 20px;
-        font-family: sans-serif; font-size: 16px; line-height: 1.5;
+    // 3. Подсказка
+    const hint = document.createElement('div');
+    hint.innerHTML = `
+      <p style="margin:0 0 8px 0; font-size:18px;">☝️</p>
+      <p style="margin:0; font-weight:700; color:#fff;">Зажми картинку пальцем</p>
+      <p style="margin:5px 0 0 0; color:#aaa; font-size:13px;">и выбери «Сохранить в галерею»</p>
+    `;
+    hint.style.cssText = `
+      margin-top: 25px; text-align: center;
+      font-family: sans-serif; font-size: 16px;
     `;
 
     // 4. Кнопка Закрыть
     const closeBtn = document.createElement('button');
-    closeBtn.innerText = "Закрыть";
+    closeBtn.innerText = '✕ Закрыть';
     closeBtn.style.cssText = `
-        margin-top: 20px; padding: 12px 30px;
-        background: #333; color: #fff; border: 1px solid #555;
-        border-radius: 8px; font-size: 14px;
+      margin-top: 25px; padding: 12px 30px;
+      background: #333; color: #fff;
+      border: 1px solid #555; border-radius: 8px;
+      font-size: 14px; cursor: pointer;
     `;
-    closeBtn.onclick = () => document.body.removeChild(overlay);
+    closeBtn.onclick = () => document.body.removeChild(modal);
 
-    overlay.appendChild(img);
-    overlay.appendChild(tip);
-    overlay.appendChild(closeBtn);
-    document.body.appendChild(overlay);
+    // Собираем
+    modal.appendChild(img);
+    modal.appendChild(hint);
+    modal.appendChild(closeBtn);
+    document.body.appendChild(modal);
   }
 
-  // --- ВАЖНО: ЭТОТ КОД ДОЛЖЕН ОСТАТЬСЯ ---
+  // --- ИНИЦИАЛИЗАЦИЯ (ОСТАВИТЬ ОБЯЗАТЕЛЬНО) ---
   document.getElementById('renderBtn').addEventListener('click', generate);
 
   window.onload = () => {
@@ -891,6 +914,7 @@
 </script>
 </body>
 </html>
+
 
 
 
