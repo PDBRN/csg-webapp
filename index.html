@@ -157,7 +157,7 @@
   <div class="sidebar">
     <div class="header">
       <h1>CSG Stories</h1>
-      <p>v 4.3(android?)</p>
+      <p>v 4.4(android?)</p>
     </div>
 
     <!-- 1. PHOTOS -->
@@ -793,10 +793,14 @@
     btn.innerText = "⏳...";
 
     try {
-      // 1. Сначала пробуем нативный шеринг ФАЙЛОМ (не ссылкой!)
+      // 1. Готовим БЛОБ (файл в памяти)
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
       const file = new File([blob], `csg_${Date.now()}.png`, { type: "image/png" });
+      
+      // 2. Готовим ссылку для просмотра (DataURL)
+      const dataUrl = canvas.toDataURL('image/png');
 
+      // 3. Пробуем мгновенный шэринг
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -805,72 +809,63 @@
             text: 'CSG Story'
           });
           btn.innerText = originalText;
-          return; // Если получилось — супер, выходим
+          return; 
         } catch (err) {
-          console.log('Share не сработал, переходим к плану Б');
+          console.log('Авто-шэринг не сработал, открываем окно');
         }
       }
       
-      // Если мы здесь — значит Share не сработал.
-      // Генерируем ошибку специально, чтобы попасть в catch
-      throw new Error("Share not active");
+      // 4. Если не вышло — открываем окно с картинкой И КНОПКОЙ
+      showFallbackImage(dataUrl, file);
 
     } catch (e) {
-      // 2. ПЛАН Б: Показываем картинку поверх экрана (Long Tap)
-      // Это работает на 100% всех Андроидах
-      const dataUrl = canvas.toDataURL('image/png');
-      showFallbackImage(dataUrl);
+      alert("Ошибка: " + e.message);
     } finally {
       btn.innerText = originalText;
     }
   }
 
-  // Вспомогательная функция для Андроида
-  function showFallbackImage(src) {
-    // Создаем затемненный фон
+  // --- ОКНО С КАРТИНКОЙ И КНОПКОЙ "ОТПРАВИТЬ" ---
+  function showFallbackImage(src, file) {
+    // Фон
     const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0'; overlay.style.left = '0';
-    overlay.style.width = '100%'; overlay.style.height = '100%';
-    overlay.style.background = 'rgba(0,0,0,0.95)';
-    overlay.style.zIndex = '9999';
-    overlay.style.display = 'flex';
-    overlay.style.flexDirection = 'column';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.padding = '20px';
+    overlay.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;';
 
-    // Создаем картинку (тег IMG, а не Canvas)
+    // Картинка
     const img = document.createElement('img');
     img.src = src;
-    img.style.maxWidth = '100%';
-    img.style.maxHeight = '80%';
-    img.style.borderRadius = '10px';
-    img.style.boxShadow = '0 0 20px rgba(255,255,255,0.1)';
+    img.style.cssText = 'max-width:100%; max-height:65%; border-radius:10px; box-shadow:0 0 20px rgba(255,255,255,0.1); margin-bottom: 20px;';
 
-    // Текст инструкции
+    // Кнопка ПОДЕЛИТЬСЯ (Самая важная!)
+    const shareBtn = document.createElement('button');
+    shareBtn.innerText = "📤 ОТПРАВИТЬ / СОХРАНИТЬ";
+    shareBtn.style.cssText = 'background:#f59e0b; color:#000; border:none; padding:15px 30px; border-radius:12px; font-size:16px; font-weight:bold; width:100%; max-width:300px; margin-bottom:10px; cursor:pointer;';
+    
+    shareBtn.onclick = async () => {
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({ files: [file] });
+            } catch (e) {
+                alert("Не удалось открыть меню. Попробуйте долгий тап по фото.");
+            }
+        } else {
+            alert("Ваш браузер не поддерживает отправку файлов. Используйте долгий тап.");
+        }
+    };
+
+    // Инструкция (Запасной вариант)
     const msg = document.createElement('p');
-    msg.innerText = "☝️ ЗАЖМИ ФОТО ПАЛЬЦЕМ,\nчтобы сохранить в галерею";
-    msg.style.color = '#fff';
-    msg.style.marginTop = '20px';
-    msg.style.textAlign = 'center';
-    msg.style.fontFamily = 'sans-serif';
-    msg.style.fontSize = '16px';
-    msg.style.fontWeight = 'bold';
+    msg.innerText = "Или зажми фото и выбери «Поделиться» / «Открыть в...»";
+    msg.style.cssText = 'color:#aaa; font-size:13px; text-align:center; max-width:300px; margin-bottom:20px; font-family:sans-serif;';
 
-    // Кнопка закрытия
+    // Кнопка Закрыть
     const closeBtn = document.createElement('button');
     closeBtn.innerText = "Закрыть";
-    closeBtn.style.marginTop = '20px';
-    closeBtn.style.padding = '10px 30px';
-    closeBtn.style.background = '#333';
-    closeBtn.style.color = '#fff';
-    closeBtn.style.border = '1px solid #555';
-    closeBtn.style.borderRadius = '8px';
-    closeBtn.style.fontSize = '14px';
+    closeBtn.style.cssText = 'background:transparent; color:#fff; border:1px solid #555; padding:10px 30px; border-radius:8px;';
     closeBtn.onclick = () => document.body.removeChild(overlay);
 
     overlay.appendChild(img);
+    overlay.appendChild(shareBtn); // Добавили кнопку
     overlay.appendChild(msg);
     overlay.appendChild(closeBtn);
     document.body.appendChild(overlay);
@@ -891,6 +886,7 @@
 </script>
 </body>
 </html>
+
 
 
 
