@@ -784,93 +784,75 @@
     setTimeout(() => document.querySelector('.preview-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
-   // --- НОВАЯ ФУНКЦИЯ СОХРАНЕНИЯ (ПРОБИВАЕТ ANDROID) ---
-  // --- ФИНАЛЬНАЯ ВЕРСИЯ СОХРАНЕНИЯ (OCTET-STREAM HACK) ---
-  
-  // Вспомогательная функция для конвертации DataURL в File (нужна для Share)
-  function dataURLtoFile(dataurl, filename) {
-    let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-    while(n--){ u8arr[n] = bstr.charCodeAt(n); }
-    return new File([u8arr], filename, {type:mime});
-  }
-
   async function shareCanvas(id) {
     const canvas = document.getElementById(id);
     const btn = document.querySelector(`button[onclick="shareCanvas('${id}')"]`);
     const originalText = btn.innerText;
     
-    // Блокируем кнопку, чтобы не тыкали 100 раз
+    // Блокируем кнопку на время обработки
     btn.disabled = true;
     btn.innerText = "⏳ Обработка...";
 
-    // Даем браузеру перерисовать интерфейс перед тяжелой работой
-    await new Promise(r => setTimeout(r, 50));
+    // Небольшая пауза, чтобы интерфейс успел обновиться
+    await new Promise(r => setTimeout(r, 100));
 
     try {
+      // 1. Конвертируем Canvas в Blob (это надежнее, чем строка текста)
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
       const fileName = `csg_${Date.now()}.png`;
+      const file = new File([blob], fileName, { type: "image/png" });
 
-      // 1. ИСПОЛЬЗУЕМ DataURL (Синхронно и надежно для Android)
-      // ВАЖНО: 1.0 - максимальное качество
-      const dataUrl = canvas.toDataURL('image/png', 1.0);
-
-      // --- ПОПЫТКА 1: SHARE (Самый красивый метод) ---
-      let shareWorked = false;
-      
-      // Проверяем поддержку. navigator.canShare может врать на Андроиде, поэтому try/catch обязателен
-      try {
-        const file = dataURLtoFile(dataUrl, fileName);
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: 'CSG Story',
-                text: '' // Пустой текст часто помогает на Samsung/Xiaomi
-            });
-            shareWorked = true;
+      // 2. ПОПЫТКА №1: Нативный Share (Работает на Samsung, Pixel, iPhone)
+      // Пробуем передать именно ФАЙЛ
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'CSG Story',
+            text: '' // Пустой текст часто помогает избежать багов
+          });
+          // Если сработало - сбрасываем кнопку и выходим
+          btn.innerText = originalText;
+          btn.disabled = false;
+          return; 
+        } catch (err) {
+          console.log("Share API закрыто или не сработало, идем дальше...");
         }
-      } catch (err) {
-        console.log("Share API failed or cancelled:", err);
-        // Не выводим alert, просто молча переходим к скачиванию
       }
 
-      if (shareWorked) {
-        btn.innerText = originalText;
-        btn.disabled = false;
-        return;
-      }
+      // 3. ПОПЫТКА №2: Открытие в новой вкладке (Fallback)
+      // Создаем временную ссылку на файл в памяти
+      const blobUrl = URL.createObjectURL(blob);
+      
+      // Пытаемся открыть новое окно
+      const newWindow = window.open(blobUrl, '_blank');
 
-      // --- ПОПЫТКА 2: ПРИНУДИТЕЛЬНОЕ СКАЧИВАНИЕ (OCTET-STREAM) ---
-      // ХАК: Подменяем тип файла на 'application/octet-stream'. 
-      // Это заставляет Андроид думать, что это важный файл, а не просто картинка.
-      
-      const downloadLink = document.createElement('a');
-      
-      // Заменяем MIME-тип в заголовке данных
-      const octetStreamUrl = dataUrl.replace("image/png", "application/octet-stream");
-      
-      downloadLink.href = octetStreamUrl;
-      downloadLink.download = fileName; // Атрибут download обязателен
-      downloadLink.style.display = 'none';
-      document.body.appendChild(downloadLink);
-      
-      // Кликаем программно
-      downloadLink.click();
-      
-      document.body.removeChild(downloadLink);
-      
-      // Визуальное подтверждение для пользователя
-      btn.innerText = "✅ Готово";
-      setTimeout(() => { btn.innerText = originalText; btn.disabled = false; }, 2000);
+      // Проверяем, не заблокировал ли браузер всплывающее окно
+      if (newWindow) {
+        btn.innerText = "✅ Открыто";
+        alert("Картинка открыта в новой вкладке.\n\nЗажми её пальцем и выбери «Сохранить» или «Скачать»!");
+        
+        // Чистим память через 1 минуту (чтобы успели сохранить)
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      } else {
+        // Если window.open заблокирован (редко, но бывает)
+        throw new Error("Браузер заблокировал открытие вкладки");
+      }
 
     } catch (e) {
       console.error(e);
-      alert("Ошибка: " + e.message + "\nПопробуйте обновить страницу.");
-      btn.innerText = originalText;
-      btn.disabled = false;
+      // Если всё сломалось — выводим alert
+      alert("Не удалось открыть меню. Попробуйте сделать скриншот.");
+    } finally {
+      // Возвращаем кнопку в исходное состояние
+      setTimeout(() => {
+         btn.innerText = originalText;
+         btn.disabled = false;
+      }, 2000);
     }
   }
 
-  // --- ИНИЦИАЛИЗАЦИЯ ---
+  // --- ВАЖНО: ЭТОТ КОД ДОЛЖЕН ОСТАТЬСЯ ---
   document.getElementById('renderBtn').addEventListener('click', generate);
 
   window.onload = () => {
@@ -885,6 +867,7 @@
 </script>
 </body>
 </html>
+
 
 
 
