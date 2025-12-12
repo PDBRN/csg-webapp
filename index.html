@@ -784,47 +784,99 @@
     setTimeout(() => document.querySelector('.preview-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
-   async function shareCanvas(id) {
-  const canvas = document.getElementById(id);
-  const btn = document.querySelector(`button[onclick="shareCanvas('${id}')"]`);
-  const originalText = btn.innerText;
-  
-  btn.innerText = "⏳...";
-  
-  try {
-    // Преобразуем в data URL напрямую (это работает лучше в WebView)
-    const dataUrl = canvas.toDataURL('image/png', 0.95);
+   // --- НОВАЯ ФУНКЦИЯ СОХРАНЕНИЯ (ПРОБИВАЕТ ANDROID) ---
+  async function shareCanvas(id) {
+    const canvas = document.getElementById(id);
+    const btn = document.querySelector(`button[onclick="shareCanvas('${id}')"]`);
+    const originalText = btn.innerText;
     
-    // Пытаемся Share API
-    if (navigator.canShare && navigator.canShare({ url: dataUrl })) {
-      try {
-        await navigator.share({
-          title: 'CSG Story',
-          text: 'CSG Story',
-          url: dataUrl
-        });
-        return;
-      } catch (err) {
-        console.warn('Share отменен');
-      }
-    }
-    
-    // Fallback: открываем в новой вкладке для скачивания
-    const link = document.createElement('a');
-    link.href = dataUrl;
-    link.download = `csg_${Date.now()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-  } catch (e) {
-    alert("Ошибка: " + e.message);
-  } finally {
-    btn.innerText = originalText;
-  }
-}
+    btn.innerText = "⏳...";
 
-  // ВАЖНО: Эти строчки должны остаться, чтобы кнопка работала!
+    try {
+      // 1. Сначала пробуем нативный шеринг ФАЙЛОМ (не ссылкой!)
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png', 1.0));
+      const file = new File([blob], `csg_${Date.now()}.png`, { type: "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'CSG Story',
+            text: 'CSG Story'
+          });
+          btn.innerText = originalText;
+          return; // Если получилось — супер, выходим
+        } catch (err) {
+          console.log('Share не сработал, переходим к плану Б');
+        }
+      }
+      
+      // Если мы здесь — значит Share не сработал.
+      // Генерируем ошибку специально, чтобы попасть в catch
+      throw new Error("Share not active");
+
+    } catch (e) {
+      // 2. ПЛАН Б: Показываем картинку поверх экрана (Long Tap)
+      // Это работает на 100% всех Андроидах
+      const dataUrl = canvas.toDataURL('image/png');
+      showFallbackImage(dataUrl);
+    } finally {
+      btn.innerText = originalText;
+    }
+  }
+
+  // Вспомогательная функция для Андроида
+  function showFallbackImage(src) {
+    // Создаем затемненный фон
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0'; overlay.style.left = '0';
+    overlay.style.width = '100%'; overlay.style.height = '100%';
+    overlay.style.background = 'rgba(0,0,0,0.95)';
+    overlay.style.zIndex = '9999';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.padding = '20px';
+
+    // Создаем картинку (тег IMG, а не Canvas)
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.maxWidth = '100%';
+    img.style.maxHeight = '80%';
+    img.style.borderRadius = '10px';
+    img.style.boxShadow = '0 0 20px rgba(255,255,255,0.1)';
+
+    // Текст инструкции
+    const msg = document.createElement('p');
+    msg.innerText = "☝️ ЗАЖМИ ФОТО ПАЛЬЦЕМ,\nчтобы сохранить в галерею";
+    msg.style.color = '#fff';
+    msg.style.marginTop = '20px';
+    msg.style.textAlign = 'center';
+    msg.style.fontFamily = 'sans-serif';
+    msg.style.fontSize = '16px';
+    msg.style.fontWeight = 'bold';
+
+    // Кнопка закрытия
+    const closeBtn = document.createElement('button');
+    closeBtn.innerText = "Закрыть";
+    closeBtn.style.marginTop = '20px';
+    closeBtn.style.padding = '10px 30px';
+    closeBtn.style.background = '#333';
+    closeBtn.style.color = '#fff';
+    closeBtn.style.border = '1px solid #555';
+    closeBtn.style.borderRadius = '8px';
+    closeBtn.style.fontSize = '14px';
+    closeBtn.onclick = () => document.body.removeChild(overlay);
+
+    overlay.appendChild(img);
+    overlay.appendChild(msg);
+    overlay.appendChild(closeBtn);
+    document.body.appendChild(overlay);
+  }
+
+  // --- ВАЖНО: ОСТАВЬ ЭТОТ КОД ДЛЯ ЗАПУСКА ---
   document.getElementById('renderBtn').addEventListener('click', generate);
 
   window.onload = () => {
@@ -839,6 +891,7 @@
 </script>
 </body>
 </html>
+
 
 
 
